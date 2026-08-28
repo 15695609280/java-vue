@@ -1,0 +1,14 @@
+{
+  "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx1G -Xms100m -Xlog:disable",
+  "java.compile.nullAnalysis.mode": "disabled",
+  "java.completion.guessMethodArguments": false,
+  "java.completion.postfix.enabled": false,
+  "java.foldingRange.enabled": false,
+  "java.inlayHints.parameterNames.enabled": false,
+  "java.referencesCodeLens.enabled": false,
+  "java.implementationsCodeLens.enabled": false,
+  "java.sources.organizeImports.starThreshold": 99,
+  "java.sources.organizeImports.staticStarThreshold": 99,
+  "java.autobuild.enabled": false,
+  "java.maxConcurrentBuilds": 1
+}
