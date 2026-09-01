@@ -2,11 +2,14 @@ package com.ruoyi.quartz.util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.spring.SpringUtils;
 import com.ruoyi.quartz.domain.SysJob;
+import com.ruoyi.quartz.task.RyTask;
 
 /**
  * 任务执行工具
@@ -15,6 +18,17 @@ import com.ruoyi.quartz.domain.SysJob;
  */
 public class JobInvokeUtil
 {
+    /**
+     * 任务类白名单：定时任务按类名实例化时，仅允许此处登记过的类，
+     * 避免用外部字符串加载非预期类导致远程代码执行。
+     * 以后新增定时任务类时，需要在这里同步登记类的全限定名。
+     */
+    private static final Map<String, Class<?>> JOB_CLASS_WHITELIST = new HashMap<>();
+    static
+    {
+        JOB_CLASS_WHITELIST.put("com.ruoyi.quartz.task.RyTask", RyTask.class);
+    }
+
     /**
      * 执行方法
      *
@@ -34,7 +48,12 @@ public class JobInvokeUtil
         }
         else
         {
-            Object bean = Class.forName(beanName).getDeclaredConstructor().newInstance();
+            Class<?> beanClass = JOB_CLASS_WHITELIST.get(beanName);
+            if (beanClass == null)
+            {
+                throw new RuntimeException("任务目标类未在白名单中登记，禁止执行: " + beanName);
+            }
+            Object bean = beanClass.getDeclaredConstructor().newInstance();
             invokeMethod(bean, methodName, methodParams);
         }
     }

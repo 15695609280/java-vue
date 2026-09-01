@@ -215,7 +215,8 @@ public class HttpUtils
         try
         {
             log.info("sendSSLPost - {}", urlNameString);
-            SSLContext sc = SSLContext.getInstance("SSL");
+            // 使用 TLS 而非已废弃的 SSL 协议上下文，避免协商到过时不安全的协议版本
+            SSLContext sc = SSLContext.getInstance("TLS");
             sc.init(null, new TrustManager[] { new TrustAnyTrustManager() }, new java.security.SecureRandom());
             URL console = new URL(urlNameString);
             HttpsURLConnection conn = (HttpsURLConnection) console.openConnection();

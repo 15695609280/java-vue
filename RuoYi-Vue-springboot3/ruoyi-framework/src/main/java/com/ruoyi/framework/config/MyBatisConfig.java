@@ -58,14 +58,10 @@ public class MyBatisConfig
                         if (resource.isReadable())
                         {
                             metadataReader = metadataReaderFactory.getMetadataReader(resource);
-                            try
-                            {
-                                result.add(Class.forName(metadataReader.getClassMetadata().getClassName()).getPackage().getName());
-                            }
-                            catch (ClassNotFoundException e)
-                            {
-                                e.printStackTrace();
-                            }
+                            // 直接从类名字符串截取包名，无需为此加载类
+                            String className = metadataReader.getClassMetadata().getClassName();
+                            int lastDotIndex = className.lastIndexOf('.');
+                            result.add(lastDotIndex > 0 ? className.substring(0, lastDotIndex) : className);
                         }
                     }
                 }
