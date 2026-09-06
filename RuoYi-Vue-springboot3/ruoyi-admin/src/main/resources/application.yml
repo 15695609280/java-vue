@@ -15,8 +15,8 @@ ruoyi:
 
 # 开发环境配置
 server:
-  # 服务器的HTTP端口
-  port: 8081
+  # 服务器的HTTP端口（从 8081 改为 8082，避免与 java-test 等其他实例冲突）
+  port: 8082
   servlet:
     # 应用的访问路径
     context-path: /
