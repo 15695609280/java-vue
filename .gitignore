@@ -82,6 +82,8 @@ Desktop.ini
 .env
 .env.local
 .env.*.local
+application-local.yml
+application-*.local.yml
 
 # =========================
 # Misc
@@ -91,3 +93,9 @@ Desktop.ini
 *.swp
 *.swo
 *~
+
+# =========================
+# Local tooling output
+# =========================
+.playwright-cli/
+output/
