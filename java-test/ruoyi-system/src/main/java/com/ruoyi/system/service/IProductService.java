@@ -14,10 +14,6 @@ public interface IProductService {
 
     public int updateProduct(Product product);
 
-    public int deleteProductIds(long[] productIds);
-
-    public int deleteProductById(long productId);
-
     int deleteProductByIds(Long[] productIds);
 
     int deleteProductById(Long productId);

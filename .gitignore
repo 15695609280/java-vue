@@ -99,3 +99,9 @@ application-*.local.yml
 # =========================
 .playwright-cli/
 output/
+
+# IDE session cache and tooling (appended 2026-09-08)
+.mimosa/
+.qoder/
+**/.vscode/*
+!.vscode/extensions.json
