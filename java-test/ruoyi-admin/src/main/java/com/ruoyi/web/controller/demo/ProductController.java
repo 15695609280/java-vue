@@ -93,6 +93,7 @@ public class ProductController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody Product product)
     {
+        
         return toAjax(productService.updateProduct(product));
     }
 
