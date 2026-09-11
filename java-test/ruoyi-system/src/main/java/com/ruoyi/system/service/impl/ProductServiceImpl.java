@@ -1,3 +1,5 @@
+package com.ruoyi.system.service.impl;
+
 import com.ruoyi.system.domain.Product;
 import com.ruoyi.system.mapper.ProductMapper;
 import com.ruoyi.system.service.IProductService;
@@ -7,7 +9,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class ProductServiceImple  implements IProductService{
+public class ProductServiceImpl implements IProductService {
+    
     @Autowired
     private ProductMapper productMapper;
 
