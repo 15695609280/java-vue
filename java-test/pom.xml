@@ -261,6 +261,8 @@
                 <configuration>
                     <!-- parameters=true：编译时保留方法参数名，Spring MVC 按参数名绑定请求参数时需要 -->
                     <parameters>true</parameters>
+                    <!-- 关闭增量编译：每次都全量重编，防止 IDE 自动编译写入 target/classes 的脏 class 被跳过 -->
+                    <useIncrementalCompilation>false</useIncrementalCompilation>
                     <!-- 源码编译版本，使用 properties 中定义的 java.version（17） -->
                     <source>${java.version}</source>
                     <!-- 目标字节码版本，与 source 保持一致 -->
