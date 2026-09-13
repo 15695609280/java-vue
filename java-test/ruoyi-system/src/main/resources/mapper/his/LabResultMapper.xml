@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.his.mapper.LabResultMapper">
+
+    <resultMap type="LabResult" id="LabResultResult">
+        <id property="resultId" column="result_id" />
+        <result property="testId" column="test_id" />
+        <result property="itemName" column="item_name" />
+        <result property="resultValue" column="result_value" />
+        <result property="unit" column="unit" />
+        <result property="refRange" column="ref_range" />
+        <result property="flag" column="flag" />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"  column="create_time"  />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"  column="update_time"  />
+        <result property="remark"      column="remark"       />
+    </resultMap>
+
+    <sql id="selectLabResultVo">
+        select t.result_id, t.test_id, t.item_name, t.result_value, t.unit, t.ref_range, t.flag
+        from his_lab_result t
+    </sql>
+
+    <select id="selectLabResultList" parameterType="com.ruoyi.his.domain.LabResult" resultMap="LabResultResult">
+        <include refid="selectLabResultVo"/>
+        <where>
+            <if test="testId != null"> AND t.test_id = #{testId}</if>
+        </where>
+        order by t.result_id
+    </select>
+
+    <select id="selectLabResultByResultId" parameterType="Long" resultMap="LabResultResult">
+        <include refid="selectLabResultVo"/>
+        where t.result_id = #{resultId}
+    </select>
+
+    <insert id="insertLabResult" parameterType="com.ruoyi.his.domain.LabResult" useGeneratedKeys="true" keyProperty="resultId">
+        insert into his_lab_result
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="testId != null">test_id,</if>
+            <if test="itemName != null and itemName != ''">item_name,</if>
+            <if test="resultValue != null and resultValue != ''">result_value,</if>
+            <if test="unit != null and unit != ''">unit,</if>
+            <if test="refRange != null and refRange != ''">ref_range,</if>
+            <if test="flag != null and flag != ''">flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="testId != null">#{testId},</if>
+            <if test="itemName != null and itemName != ''">#{itemName},</if>
+            <if test="resultValue != null and resultValue != ''">#{resultValue},</if>
+            <if test="unit != null and unit != ''">#{unit},</if>
+            <if test="refRange != null and refRange != ''">#{refRange},</if>
+            <if test="flag != null and flag != ''">#{flag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateLabResult" parameterType="com.ruoyi.his.domain.LabResult">
+        update his_lab_result
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="testId != null">test_id = #{testId},</if>
+            <if test="itemName != null and itemName != ''">item_name = #{itemName},</if>
+            <if test="resultValue != null and resultValue != ''">result_value = #{resultValue},</if>
+            <if test="unit != null and unit != ''">unit = #{unit},</if>
+            <if test="refRange != null and refRange != ''">ref_range = #{refRange},</if>
+            <if test="flag != null and flag != ''">flag = #{flag},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where result_id = #{resultId}
+    </update>
+
+    <delete id="deleteLabResultByResultId" parameterType="Long">
+        delete from his_lab_result where result_id = #{resultId}
+    </delete>
+
+    <delete id="deleteLabResultByResultIds" parameterType="String">
+        delete from his_lab_result where result_id in
+        <foreach item="resultId" collection="array" open="(" separator="," close=")">
+            #{resultId}
+        </foreach>
+    </delete>
+
+    <select id="selectByTestId" parameterType="Long" resultMap="LabResultResult">
+        <include refid="selectLabResultVo"/>
+        where t.test_id = #{testId} order by t.result_id
+    </select>
+
+    <delete id="deleteByTestId" parameterType="Long">
+        delete from his_lab_result where test_id = #{testId}
+    </delete>
+</mapper>

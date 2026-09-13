@@ -194,6 +194,20 @@
             <!-- ==================== 若依内部子模块依赖声明 ==================== -->
             <!-- 以下是若依自己拆分的子模块，同样在这里声明版本，子模块互相引用时不用写版本 -->
 
+            <!-- 定时任务模块：基于 Quartz 实现的可视化定时任务管理（增删改查、立即执行、暂停恢复） -->
+            <dependency>
+                <groupId>com.ruoyi</groupId>
+                <artifactId>ruoyi-quartz</artifactId>
+                <version>${ruoyi.version}</version>
+            </dependency>
+
+            <!-- 代码生成模块：根据数据库表结构一键生成前后端代码（Entity/Mapper/Service/Controller/Vue/API） -->
+            <dependency>
+                <groupId>com.ruoyi</groupId>
+                <artifactId>ruoyi-generator</artifactId>
+                <version>${ruoyi.version}</version>
+            </dependency>
+
             <!-- 框架核心模块：Spring Security 安全配置、拦截器、过滤器、数据源、Redis、异常处理等基础设施 -->
             <dependency>
                 <groupId>com.ruoyi</groupId>
@@ -228,6 +242,8 @@
         <module>ruoyi-admin</module>       <!-- 启动模块：Spring Boot 启动类、配置文件、Controller 入口 -->
         <module>ruoyi-framework</module>   <!-- 框架核心：安全、拦截器、数据源、Redis、异常处理 -->
         <module>ruoyi-system</module>      <!-- 系统业务：用户/角色/菜单/部门/字典等（框架认证依赖） -->
+        <module>ruoyi-quartz</module>      <!-- 定时任务：Quartz 可视化调度 -->
+        <module>ruoyi-generator</module>   <!-- 代码生成：一键生成前后端代码 -->
         <module>ruoyi-common</module>      <!-- 通用工具：公共工具类、常量、注解 -->
     </modules>
 

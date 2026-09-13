@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.his.mapper.AdmissionMapper">
+
+    <resultMap type="Admission" id="AdmissionResult">
+        <id property="admId" column="adm_id" />
+        <result property="admNo" column="adm_no" />
+        <result property="patientId" column="patient_id" />
+        <result property="patientName" column="patient_name" />
+        <result property="gender" column="gender" />
+        <result property="age" column="age" />
+        <result property="deptId" column="dept_id" />
+        <result property="deptName" column="dept_name" />
+        <result property="wardId" column="ward_id" />
+        <result property="wardName" column="ward_name" />
+        <result property="bedId" column="bed_id" />
+        <result property="bedNo" column="bed_no" />
+        <result property="doctorId" column="doctor_id" />
+        <result property="doctorName" column="doctor_name" />
+        <result property="inDate" column="in_date" />
+        <result property="outDate" column="out_date" />
+        <result property="deposit" column="deposit" />
+        <result property="admStatus" column="adm_status" />
+        <result property="diagnosisIn" column="diagnosis_in" />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"  column="create_time"  />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"  column="update_time"  />
+        <result property="remark"      column="remark"       />
+    </resultMap>
+
+    <sql id="selectAdmissionVo">
+        select t.adm_id, t.adm_no, t.patient_id, t.dept_id, t.ward_id, t.bed_id, t.doctor_id, t.in_date, t.out_date, t.deposit, t.adm_status, t.diagnosis_in, p.patient_name, p.gender, p.age, d.dept_name, w.ward_name, b.bed_no, doc.doctor_name
+        from his_admission t
+        left join his_patient p on p.patient_id = t.patient_id
+        left join his_department d on d.dept_id = t.dept_id
+        left join his_ward w on w.ward_id = t.ward_id
+        left join his_bed b on b.bed_id = t.bed_id
+        left join his_doctor doc on doc.doctor_id = t.doctor_id
+    </sql>
+
+    <select id="selectAdmissionList" parameterType="com.ruoyi.his.domain.Admission" resultMap="AdmissionResult">
+        <include refid="selectAdmissionVo"/>
+        <where>
+            <if test="admNo != null and admNo != ''"> AND t.adm_no = #{admNo}</if>
+            <if test="patientId != null"> AND t.patient_id = #{patientId}</if>
+            <if test="deptId != null"> AND t.dept_id = #{deptId}</if>
+            <if test="admStatus != null and admStatus != ''"> AND t.adm_status = #{admStatus}</if>
+        </where>
+        order by t.adm_id desc
+    </select>
+
+    <select id="selectAdmissionByAdmId" parameterType="Long" resultMap="AdmissionResult">
+        <include refid="selectAdmissionVo"/>
+        where t.adm_id = #{admId}
+    </select>
+
+    <insert id="insertAdmission" parameterType="com.ruoyi.his.domain.Admission" useGeneratedKeys="true" keyProperty="admId">
+        insert into his_admission
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="admNo != null and admNo != ''">adm_no,</if>
+            <if test="patientId != null">patient_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="wardId != null">ward_id,</if>
+            <if test="bedId != null">bed_id,</if>
+            <if test="doctorId != null">doctor_id,</if>
+            <if test="inDate != null">in_date,</if>
+            <if test="outDate != null">out_date,</if>
+            <if test="deposit != null">deposit,</if>
+            <if test="admStatus != null and admStatus != ''">adm_status,</if>
+            <if test="diagnosisIn != null and diagnosisIn != ''">diagnosis_in,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="admNo != null and admNo != ''">#{admNo},</if>
+            <if test="patientId != null">#{patientId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="wardId != null">#{wardId},</if>
+            <if test="bedId != null">#{bedId},</if>
+            <if test="doctorId != null">#{doctorId},</if>
+            <if test="inDate != null">#{inDate},</if>
+            <if test="outDate != null">#{outDate},</if>
+            <if test="deposit != null">#{deposit},</if>
+            <if test="admStatus != null and admStatus != ''">#{admStatus},</if>
+            <if test="diagnosisIn != null and diagnosisIn != ''">#{diagnosisIn},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateAdmission" parameterType="com.ruoyi.his.domain.Admission">
+        update his_admission
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="admNo != null and admNo != ''">adm_no = #{admNo},</if>
+            <if test="patientId != null">patient_id = #{patientId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="wardId != null">ward_id = #{wardId},</if>
+            <if test="bedId != null">bed_id = #{bedId},</if>
+            <if test="doctorId != null">doctor_id = #{doctorId},</if>
+            <if test="inDate != null">in_date = #{inDate},</if>
+            <if test="outDate != null">out_date = #{outDate},</if>
+            <if test="deposit != null">deposit = #{deposit},</if>
+            <if test="admStatus != null and admStatus != ''">adm_status = #{admStatus},</if>
+            <if test="diagnosisIn != null and diagnosisIn != ''">diagnosis_in = #{diagnosisIn},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where adm_id = #{admId}
+    </update>
+
+    <delete id="deleteAdmissionByAdmId" parameterType="Long">
+        delete from his_admission where adm_id = #{admId}
+    </delete>
+
+    <delete id="deleteAdmissionByAdmIds" parameterType="String">
+        delete from his_admission where adm_id in
+        <foreach item="admId" collection="array" open="(" separator="," close=")">
+            #{admId}
+        </foreach>
+    </delete>
+
+    <select id="selectInHospitalByPatient" parameterType="Long" resultMap="AdmissionResult">
+        <include refid="selectAdmissionVo"/>
+        where t.patient_id = #{patientId} and t.adm_status = '0' order by t.adm_id desc limit 1
+    </select>
+</mapper>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.his.mapper.SurgeryMapper">
+
+    <resultMap type="Surgery" id="SurgeryResult">
+        <id property="surgeryId" column="surgery_id" />
+        <result property="surgeryNo" column="surgery_no" />
+        <result property="surgeryName" column="surgery_name" />
+        <result property="patientId" column="patient_id" />
+        <result property="patientName" column="patient_name" />
+        <result property="deptId" column="dept_id" />
+        <result property="deptName" column="dept_name" />
+        <result property="surgeonId" column="surgeon_id" />
+        <result property="surgeonName" column="doctor_name" />
+        <result property="anesthesia" column="anesthesia" />
+        <result property="roomNo" column="room_no" />
+        <result property="level" column="level" />
+        <result property="planTime" column="plan_time" />
+        <result property="startTime" column="start_time" />
+        <result property="endTime" column="end_time" />
+        <result property="status" column="status" />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"  column="create_time"  />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"  column="update_time"  />
+        <result property="remark"      column="remark"       />
+    </resultMap>
+
+    <sql id="selectSurgeryVo">
+        select t.surgery_id, t.surgery_no, t.surgery_name, t.patient_id, t.dept_id, t.surgeon_id, t.anesthesia, t.room_no, t.level, t.plan_time, t.start_time, t.end_time, t.status, p.patient_name, d.dept_name, doc.doctor_name
+        from his_surgery t
+        left join his_patient p on p.patient_id = t.patient_id
+        left join his_department d on d.dept_id = t.dept_id
+        left join his_doctor doc on doc.doctor_id = t.surgeon_id
+    </sql>
+
+    <select id="selectSurgeryList" parameterType="com.ruoyi.his.domain.Surgery" resultMap="SurgeryResult">
+        <include refid="selectSurgeryVo"/>
+        <where>
+            <if test="surgeryNo != null and surgeryNo != ''"> AND t.surgery_no = #{surgeryNo}</if>
+            <if test="surgeryName != null and surgeryName != ''"> AND t.surgery_name like concat('%', #{surgeryName}, '%')</if>
+            <if test="patientId != null"> AND t.patient_id = #{patientId}</if>
+            <if test="status != null and status != ''"> AND t.status = #{status}</if>
+        </where>
+        order by t.plan_time desc
+    </select>
+
+    <select id="selectSurgeryBySurgeryId" parameterType="Long" resultMap="SurgeryResult">
+        <include refid="selectSurgeryVo"/>
+        where t.surgery_id = #{surgeryId}
+    </select>
+
+    <insert id="insertSurgery" parameterType="com.ruoyi.his.domain.Surgery" useGeneratedKeys="true" keyProperty="surgeryId">
+        insert into his_surgery
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="surgeryNo != null and surgeryNo != ''">surgery_no,</if>
+            <if test="surgeryName != null and surgeryName != ''">surgery_name,</if>
+            <if test="patientId != null">patient_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="surgeonId != null">surgeon_id,</if>
+            <if test="anesthesia != null and anesthesia != ''">anesthesia,</if>
+            <if test="roomNo != null and roomNo != ''">room_no,</if>
+            <if test="level != null and level != ''">level,</if>
+            <if test="planTime != null">plan_time,</if>
+            <if test="startTime != null">start_time,</if>
+            <if test="endTime != null">end_time,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="surgeryNo != null and surgeryNo != ''">#{surgeryNo},</if>
+            <if test="surgeryName != null and surgeryName != ''">#{surgeryName},</if>
+            <if test="patientId != null">#{patientId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="surgeonId != null">#{surgeonId},</if>
+            <if test="anesthesia != null and anesthesia != ''">#{anesthesia},</if>
+            <if test="roomNo != null and roomNo != ''">#{roomNo},</if>
+            <if test="level != null and level != ''">#{level},</if>
+            <if test="planTime != null">#{planTime},</if>
+            <if test="startTime != null">#{startTime},</if>
+            <if test="endTime != null">#{endTime},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSurgery" parameterType="com.ruoyi.his.domain.Surgery">
+        update his_surgery
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="surgeryNo != null and surgeryNo != ''">surgery_no = #{surgeryNo},</if>
+            <if test="surgeryName != null and surgeryName != ''">surgery_name = #{surgeryName},</if>
+            <if test="patientId != null">patient_id = #{patientId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="surgeonId != null">surgeon_id = #{surgeonId},</if>
+            <if test="anesthesia != null and anesthesia != ''">anesthesia = #{anesthesia},</if>
+            <if test="roomNo != null and roomNo != ''">room_no = #{roomNo},</if>
+            <if test="level != null and level != ''">level = #{level},</if>
+            <if test="planTime != null">plan_time = #{planTime},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where surgery_id = #{surgeryId}
+    </update>
+
+    <delete id="deleteSurgeryBySurgeryId" parameterType="Long">
+        delete from his_surgery where surgery_id = #{surgeryId}
+    </delete>
+
+    <delete id="deleteSurgeryBySurgeryIds" parameterType="String">
+        delete from his_surgery where surgery_id in
+        <foreach item="surgeryId" collection="array" open="(" separator="," close=")">
+            #{surgeryId}
+        </foreach>
+    </delete>
+</mapper>

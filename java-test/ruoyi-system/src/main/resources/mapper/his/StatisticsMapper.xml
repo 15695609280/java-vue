@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.his.mapper.StatisticsMapper">
+
+    <select id="overview" resultType="java.util.HashMap">
+        select
+            (select count(*) from his_registration where reg_date = curdate()) todayReg,
+            (select ifnull(sum(amount),0) from his_charge where charge_status = '1' and date(settle_time) = curdate()) todayRevenue,
+            (select count(*) from his_admission where adm_status = '0') inHospital,
+            (select count(*) from his_bed where status = '0') freeBeds,
+            (select count(*) from his_patient) totalPatients,
+            (select count(*) from his_drug where stock &lt;= stock_warn) warnDrugs,
+            (select count(*) from his_surgery where status = '0') pendingSurgery,
+            (select count(*) from his_lab_test where status in ('0','1','2')) pendingLab
+    </select>
+
+    <select id="regTrend" resultType="java.util.HashMap">
+        select date_format(reg_date,'%m-%d') day, count(*) cnt
+        from his_registration
+        where reg_date &gt;= date_sub(curdate(), interval 13 day)
+        group by reg_date
+        order by reg_date
+    </select>
+
+    <select id="revenueTrend" resultType="java.util.HashMap">
+        select date_format(t.d,'%m-%d') day, t.amount
+        from (
+            select date(settle_time) d, ifnull(sum(amount),0) amount
+            from his_charge
+            where charge_status = '1' and settle_time &gt;= date_sub(curdate(), interval 29 day)
+            group by date(settle_time)
+        ) t
+        order by t.d
+    </select>
+
+    <select id="deptReg" resultType="java.util.HashMap">
+        select d.dept_name name, count(*) value
+        from his_registration r
+        join his_department d on d.dept_id = r.dept_id
+        group by r.dept_id
+        order by value desc
+    </select>
+
+    <select id="topDrugs" resultType="java.util.HashMap">
+        select i.drug_name name, sum(i.quantity) value
+        from his_prescription_item i
+        join his_prescription rx on rx.rx_id = i.rx_id
+        where rx.status in ('1','2')
+        group by i.drug_id, i.drug_name
+        order by value desc
+        limit 10
+    </select>
+
+    <select id="bedUsage" resultType="java.util.HashMap">
+        select w.ward_name name, count(*) total, sum(case when b.status = '1' then 1 else 0 end) used
+        from his_bed b
+        join his_ward w on w.ward_id = b.ward_id
+        group by b.ward_id
+        order by b.ward_id
+    </select>
+
+    <select id="chargeType" resultType="java.util.HashMap">
+        select case source_type
+            when '0' then '挂号费' when '1' then '处方费' when '2' then '检验费'
+            when '3' then '检查费' when '4' then '住院费' when '5' then '手术费' else '其他' end name,
+            ifnull(sum(amount),0) value
+        from his_charge
+        where charge_status = '1'
+        group by source_type
+    </select>
+
+    <select id="doctorWorkload" resultType="java.util.HashMap">
+        select d.doctor_name name, count(*) value,
+            ifnull(sum(v.status = '2'),0) finished
+        from his_visit v
+        join his_doctor d on d.doctor_id = v.doctor_id
+        where v.visit_time &gt;= date_sub(curdate(), interval 29 day)
+        group by v.doctor_id, d.doctor_name
+        order by value desc
+        limit 10
+    </select>
+
+    <select id="admTrend" resultType="java.util.HashMap">
+        select t.day,
+            ifnull((select count(*) from his_admission a where date(a.in_date) = t.day),'0') admitCnt,
+            ifnull((select count(*) from his_admission a where date(a.out_date) = t.day),'0') dischargeCnt
+        from (
+            select date_sub(curdate(), interval n day) day from (
+                select 0 n union select 1 union select 2 union select 3 union select 4 union select 5 union select 6
+                union select 7 union select 8 union select 9 union select 10 union select 11 union select 12 union select 13
+            ) days
+        ) t
+        order by t.day
+    </select>
+
+    <select id="slotDist" resultType="java.util.HashMap">
+        select case r.time_slot when '0' then '上午' when '1' then '下午' when '2' then '晚间' else '其他' end name,
+            count(*) value
+        from his_registration r
+        group by r.time_slot
+    </select>
+
+    <select id="deptRevenue" resultType="java.util.HashMap">
+        select ifnull(d.dept_name,'其他') name, ifnull(sum(c.amount),0) value
+        from his_charge c
+        left join his_registration r on c.source_type = '0' and c.source_id = r.reg_id
+        left join his_prescription p on c.source_type = '1' and c.source_id = p.rx_id
+        left join his_admission a on c.source_type = '4' and c.source_id = a.adm_id
+        left join his_surgery s on c.source_type = '5' and c.source_id = s.surgery_id
+        left join his_department d on d.dept_id = coalesce(r.dept_id,
+            (select v.dept_id from his_visit v where v.visit_id = p.visit_id),
+            a.dept_id, s.dept_id)
+        where c.charge_status = '1'
+        group by ifnull(d.dept_name,'其他')
+        order by value desc
+    </select>
+
+    <select id="monthSummary" resultType="java.util.HashMap">
+        select
+            (select count(*) from his_registration where date_format(reg_date,'%Y-%m') = date_format(curdate(),'%Y-%m')) monthReg,
+            (select ifnull(sum(amount),0) from his_charge where charge_status = '1' and date_format(settle_time,'%Y-%m') = date_format(curdate(),'%Y-%m')) monthRevenue,
+            (select count(*) from his_admission where date_format(in_date,'%Y-%m') = date_format(curdate(),'%Y-%m')) monthAdmit,
+            (select count(*) from his_admission where date_format(out_date,'%Y-%m') = date_format(curdate(),'%Y-%m')) monthDischarge,
+            (select count(*) from his_surgery where status = '2' and date_format(update_time,'%Y-%m') = date_format(curdate(),'%Y-%m')) monthSurgery,
+            (select count(*) from his_prescription where date_format(create_time,'%Y-%m') = date_format(curdate(),'%Y-%m')) monthRx
+    </select>
+
+</mapper>

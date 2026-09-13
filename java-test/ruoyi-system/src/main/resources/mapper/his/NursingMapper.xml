@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.his.mapper.NursingMapper">
+
+    <resultMap type="Nursing" id="NursingResult">
+        <id property="recordId" column="record_id" />
+        <result property="admId" column="adm_id" />
+        <result property="patientId" column="patient_id" />
+        <result property="patientName" column="patient_name" />
+        <result property="nurseName" column="nurse_name" />
+        <result property="recordTime" column="record_time" />
+        <result property="temperature" column="temperature" />
+        <result property="pulse" column="pulse" />
+        <result property="breath" column="breath" />
+        <result property="bpHigh" column="bp_high" />
+        <result property="bpLow" column="bp_low" />
+        <result property="spo2" column="spo2" />
+        <result property="content" column="content" />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"  column="create_time"  />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"  column="update_time"  />
+        <result property="remark"      column="remark"       />
+    </resultMap>
+
+    <sql id="selectNursingVo">
+        select t.record_id, t.adm_id, t.patient_id, t.nurse_name, t.record_time, t.temperature, t.pulse, t.breath, t.bp_high, t.bp_low, t.spo2, t.content, p.patient_name
+        from his_nursing t
+        left join his_patient p on p.patient_id = t.patient_id
+    </sql>
+
+    <select id="selectNursingList" parameterType="com.ruoyi.his.domain.Nursing" resultMap="NursingResult">
+        <include refid="selectNursingVo"/>
+        <where>
+            <if test="admId != null"> AND t.adm_id = #{admId}</if>
+        </where>
+        order by t.record_time desc
+    </select>
+
+    <select id="selectNursingByRecordId" parameterType="Long" resultMap="NursingResult">
+        <include refid="selectNursingVo"/>
+        where t.record_id = #{recordId}
+    </select>
+
+    <insert id="insertNursing" parameterType="com.ruoyi.his.domain.Nursing" useGeneratedKeys="true" keyProperty="recordId">
+        insert into his_nursing
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="admId != null">adm_id,</if>
+            <if test="patientId != null">patient_id,</if>
+            <if test="nurseName != null and nurseName != ''">nurse_name,</if>
+            <if test="recordTime != null">record_time,</if>
+            <if test="temperature != null">temperature,</if>
+            <if test="pulse != null">pulse,</if>
+            <if test="breath != null">breath,</if>
+            <if test="bpHigh != null">bp_high,</if>
+            <if test="bpLow != null">bp_low,</if>
+            <if test="spo2 != null">spo2,</if>
+            <if test="content != null and content != ''">content,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="admId != null">#{admId},</if>
+            <if test="patientId != null">#{patientId},</if>
+            <if test="nurseName != null and nurseName != ''">#{nurseName},</if>
+            <if test="recordTime != null">#{recordTime},</if>
+            <if test="temperature != null">#{temperature},</if>
+            <if test="pulse != null">#{pulse},</if>
+            <if test="breath != null">#{breath},</if>
+            <if test="bpHigh != null">#{bpHigh},</if>
+            <if test="bpLow != null">#{bpLow},</if>
+            <if test="spo2 != null">#{spo2},</if>
+            <if test="content != null and content != ''">#{content},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateNursing" parameterType="com.ruoyi.his.domain.Nursing">
+        update his_nursing
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="admId != null">adm_id = #{admId},</if>
+            <if test="patientId != null">patient_id = #{patientId},</if>
+            <if test="nurseName != null and nurseName != ''">nurse_name = #{nurseName},</if>
+            <if test="recordTime != null">record_time = #{recordTime},</if>
+            <if test="temperature != null">temperature = #{temperature},</if>
+            <if test="pulse != null">pulse = #{pulse},</if>
+            <if test="breath != null">breath = #{breath},</if>
+            <if test="bpHigh != null">bp_high = #{bpHigh},</if>
+            <if test="bpLow != null">bp_low = #{bpLow},</if>
+            <if test="spo2 != null">spo2 = #{spo2},</if>
+            <if test="content != null and content != ''">content = #{content},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where record_id = #{recordId}
+    </update>
+
+    <delete id="deleteNursingByRecordId" parameterType="Long">
+        delete from his_nursing where record_id = #{recordId}
+    </delete>
+
+    <delete id="deleteNursingByRecordIds" parameterType="String">
+        delete from his_nursing where record_id in
+        <foreach item="recordId" collection="array" open="(" separator="," close=")">
+            #{recordId}
+        </foreach>
+    </delete>
+</mapper>

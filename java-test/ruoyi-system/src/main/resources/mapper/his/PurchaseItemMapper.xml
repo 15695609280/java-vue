@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.his.mapper.PurchaseItemMapper">
+
+    <resultMap type="PurchaseItem" id="PurchaseItemResult">
+        <id property="itemId" column="item_id" />
+        <result property="purchaseId" column="purchase_id" />
+        <result property="drugId" column="drug_id" />
+        <result property="drugName" column="drug_name" />
+        <result property="specification" column="specification" />
+        <result property="quantity" column="quantity" />
+        <result property="price" column="price" />
+        <result property="amount" column="amount" />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"  column="create_time"  />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"  column="update_time"  />
+        <result property="remark"      column="remark"       />
+    </resultMap>
+
+    <sql id="selectPurchaseItemVo">
+        select t.item_id, t.purchase_id, t.drug_id, t.quantity, t.price, t.amount, dg.drug_name, dg.specification
+        from his_purchase_item t
+        left join his_drug dg on dg.drug_id = t.drug_id
+    </sql>
+
+    <select id="selectPurchaseItemList" parameterType="com.ruoyi.his.domain.PurchaseItem" resultMap="PurchaseItemResult">
+        <include refid="selectPurchaseItemVo"/>
+        <where>
+            <if test="purchaseId != null"> AND t.purchase_id = #{purchaseId}</if>
+        </where>
+        order by t.item_id
+    </select>
+
+    <select id="selectPurchaseItemByItemId" parameterType="Long" resultMap="PurchaseItemResult">
+        <include refid="selectPurchaseItemVo"/>
+        where t.item_id = #{itemId}
+    </select>
+
+    <insert id="insertPurchaseItem" parameterType="com.ruoyi.his.domain.PurchaseItem" useGeneratedKeys="true" keyProperty="itemId">
+        insert into his_purchase_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="purchaseId != null">purchase_id,</if>
+            <if test="drugId != null">drug_id,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="price != null">price,</if>
+            <if test="amount != null">amount,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="purchaseId != null">#{purchaseId},</if>
+            <if test="drugId != null">#{drugId},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="price != null">#{price},</if>
+            <if test="amount != null">#{amount},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePurchaseItem" parameterType="com.ruoyi.his.domain.PurchaseItem">
+        update his_purchase_item
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="purchaseId != null">purchase_id = #{purchaseId},</if>
+            <if test="drugId != null">drug_id = #{drugId},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where item_id = #{itemId}
+    </update>
+
+    <delete id="deletePurchaseItemByItemId" parameterType="Long">
+        delete from his_purchase_item where item_id = #{itemId}
+    </delete>
+
+    <delete id="deletePurchaseItemByItemIds" parameterType="String">
+        delete from his_purchase_item where item_id in
+        <foreach item="itemId" collection="array" open="(" separator="," close=")">
+            #{itemId}
+        </foreach>
+    </delete>
+
+    <select id="selectByPurchaseId" parameterType="Long" resultMap="PurchaseItemResult">
+        <include refid="selectPurchaseItemVo"/>
+        where t.purchase_id = #{purchaseId} order by t.item_id
+    </select>
+
+    <delete id="deleteByPurchaseId" parameterType="Long">
+        delete from his_purchase_item where purchase_id = #{purchaseId}
+    </delete>
+</mapper>

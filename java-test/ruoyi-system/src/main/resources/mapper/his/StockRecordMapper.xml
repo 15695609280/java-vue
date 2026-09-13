@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.his.mapper.StockRecordMapper">
+
+    <resultMap type="StockRecord" id="StockRecordResult">
+        <id property="recordId" column="record_id" />
+        <result property="recordNo" column="record_no" />
+        <result property="recordType" column="record_type" />
+        <result property="drugId" column="drug_id" />
+        <result property="drugName" column="drug_name" />
+        <result property="specification" column="specification" />
+        <result property="quantity" column="quantity" />
+        <result property="beforeStock" column="before_stock" />
+        <result property="afterStock" column="after_stock" />
+        <result property="sourceId" column="source_id" />
+        <result property="operator" column="operator" />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"  column="create_time"  />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"  column="update_time"  />
+        <result property="remark"      column="remark"       />
+    </resultMap>
+
+    <sql id="selectStockRecordVo">
+        select t.record_id, t.record_no, t.record_type, t.drug_id, t.quantity, t.before_stock, t.after_stock, t.source_id, t.operator, dg.drug_name, dg.specification
+        from his_stock_record t
+        left join his_drug dg on dg.drug_id = t.drug_id
+    </sql>
+
+    <select id="selectStockRecordList" parameterType="com.ruoyi.his.domain.StockRecord" resultMap="StockRecordResult">
+        <include refid="selectStockRecordVo"/>
+        <where>
+            <if test="recordNo != null and recordNo != ''"> AND t.record_no = #{recordNo}</if>
+            <if test="recordType != null and recordType != ''"> AND t.record_type = #{recordType}</if>
+            <if test="drugId != null"> AND t.drug_id = #{drugId}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"> AND date_format(t.create_time,'%y%m%d') &gt;= #{params.beginTime}</if>
+            <if test="params.endTime != null and params.endTime != ''"> AND date_format(t.create_time,'%y%m%d') &lt;= #{params.endTime}</if>
+        </where>
+        order by t.record_id desc
+    </select>
+
+    <select id="selectStockRecordByRecordId" parameterType="Long" resultMap="StockRecordResult">
+        <include refid="selectStockRecordVo"/>
+        where t.record_id = #{recordId}
+    </select>
+
+    <insert id="insertStockRecord" parameterType="com.ruoyi.his.domain.StockRecord" useGeneratedKeys="true" keyProperty="recordId">
+        insert into his_stock_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="recordNo != null and recordNo != ''">record_no,</if>
+            <if test="recordType != null and recordType != ''">record_type,</if>
+            <if test="drugId != null">drug_id,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="beforeStock != null">before_stock,</if>
+            <if test="afterStock != null">after_stock,</if>
+            <if test="sourceId != null">source_id,</if>
+            <if test="operator != null and operator != ''">operator,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="recordNo != null and recordNo != ''">#{recordNo},</if>
+            <if test="recordType != null and recordType != ''">#{recordType},</if>
+            <if test="drugId != null">#{drugId},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="beforeStock != null">#{beforeStock},</if>
+            <if test="afterStock != null">#{afterStock},</if>
+            <if test="sourceId != null">#{sourceId},</if>
+            <if test="operator != null and operator != ''">#{operator},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateStockRecord" parameterType="com.ruoyi.his.domain.StockRecord">
+        update his_stock_record
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="recordNo != null and recordNo != ''">record_no = #{recordNo},</if>
+            <if test="recordType != null and recordType != ''">record_type = #{recordType},</if>
+            <if test="drugId != null">drug_id = #{drugId},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="beforeStock != null">before_stock = #{beforeStock},</if>
+            <if test="afterStock != null">after_stock = #{afterStock},</if>
+            <if test="sourceId != null">source_id = #{sourceId},</if>
+            <if test="operator != null and operator != ''">operator = #{operator},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where record_id = #{recordId}
+    </update>
+
+    <delete id="deleteStockRecordByRecordId" parameterType="Long">
+        delete from his_stock_record where record_id = #{recordId}
+    </delete>
+
+    <delete id="deleteStockRecordByRecordIds" parameterType="String">
+        delete from his_stock_record where record_id in
+        <foreach item="recordId" collection="array" open="(" separator="," close=")">
+            #{recordId}
+        </foreach>
+    </delete>
+</mapper>

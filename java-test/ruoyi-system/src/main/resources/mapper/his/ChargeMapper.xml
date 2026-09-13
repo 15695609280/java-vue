@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.his.mapper.ChargeMapper">
+
+    <resultMap type="Charge" id="ChargeResult">
+        <id property="chargeId" column="charge_id" />
+        <result property="chargeNo" column="charge_no" />
+        <result property="patientId" column="patient_id" />
+        <result property="patientName" column="patient_name" />
+        <result property="patientNo" column="patient_no" />
+        <result property="sourceType" column="source_type" />
+        <result property="sourceId" column="source_id" />
+        <result property="itemName" column="item_name" />
+        <result property="price" column="price" />
+        <result property="quantity" column="quantity" />
+        <result property="amount" column="amount" />
+        <result property="chargeStatus" column="charge_status" />
+        <result property="payType" column="pay_type" />
+        <result property="settleTime" column="settle_time" />
+        <result property="operator" column="operator" />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"  column="create_time"  />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"  column="update_time"  />
+        <result property="remark"      column="remark"       />
+    </resultMap>
+
+    <sql id="selectChargeVo">
+        select t.charge_id, t.charge_no, t.patient_id, t.source_type, t.source_id, t.item_name, t.price, t.quantity, t.amount, t.charge_status, t.pay_type, t.settle_time, t.operator, p.patient_name, p.patient_no
+        from his_charge t
+        left join his_patient p on p.patient_id = t.patient_id
+    </sql>
+
+    <select id="selectChargeList" parameterType="com.ruoyi.his.domain.Charge" resultMap="ChargeResult">
+        <include refid="selectChargeVo"/>
+        <where>
+            <if test="chargeNo != null and chargeNo != ''"> AND t.charge_no = #{chargeNo}</if>
+            <if test="patientId != null"> AND t.patient_id = #{patientId}</if>
+            <if test="sourceType != null and sourceType != ''"> AND t.source_type = #{sourceType}</if>
+            <if test="itemName != null and itemName != ''"> AND t.item_name like concat('%', #{itemName}, '%')</if>
+            <if test="chargeStatus != null and chargeStatus != ''"> AND t.charge_status = #{chargeStatus}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"> AND date_format(t.create_time,'%y%m%d') &gt;= #{params.beginTime}</if>
+            <if test="params.endTime != null and params.endTime != ''"> AND date_format(t.create_time,'%y%m%d') &lt;= #{params.endTime}</if>
+        </where>
+        order by t.charge_id desc
+    </select>
+
+    <select id="selectChargeByChargeId" parameterType="Long" resultMap="ChargeResult">
+        <include refid="selectChargeVo"/>
+        where t.charge_id = #{chargeId}
+    </select>
+
+    <insert id="insertCharge" parameterType="com.ruoyi.his.domain.Charge" useGeneratedKeys="true" keyProperty="chargeId">
+        insert into his_charge
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="chargeNo != null and chargeNo != ''">charge_no,</if>
+            <if test="patientId != null">patient_id,</if>
+            <if test="sourceType != null and sourceType != ''">source_type,</if>
+            <if test="sourceId != null">source_id,</if>
+            <if test="itemName != null and itemName != ''">item_name,</if>
+            <if test="price != null">price,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="amount != null">amount,</if>
+            <if test="chargeStatus != null and chargeStatus != ''">charge_status,</if>
+            <if test="payType != null and payType != ''">pay_type,</if>
+            <if test="settleTime != null">settle_time,</if>
+            <if test="operator != null and operator != ''">operator,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="chargeNo != null and chargeNo != ''">#{chargeNo},</if>
+            <if test="patientId != null">#{patientId},</if>
+            <if test="sourceType != null and sourceType != ''">#{sourceType},</if>
+            <if test="sourceId != null">#{sourceId},</if>
+            <if test="itemName != null and itemName != ''">#{itemName},</if>
+            <if test="price != null">#{price},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="amount != null">#{amount},</if>
+            <if test="chargeStatus != null and chargeStatus != ''">#{chargeStatus},</if>
+            <if test="payType != null and payType != ''">#{payType},</if>
+            <if test="settleTime != null">#{settleTime},</if>
+            <if test="operator != null and operator != ''">#{operator},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCharge" parameterType="com.ruoyi.his.domain.Charge">
+        update his_charge
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="chargeNo != null and chargeNo != ''">charge_no = #{chargeNo},</if>
+            <if test="patientId != null">patient_id = #{patientId},</if>
+            <if test="sourceType != null and sourceType != ''">source_type = #{sourceType},</if>
+            <if test="sourceId != null">source_id = #{sourceId},</if>
+            <if test="itemName != null and itemName != ''">item_name = #{itemName},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="chargeStatus != null and chargeStatus != ''">charge_status = #{chargeStatus},</if>
+            <if test="payType != null and payType != ''">pay_type = #{payType},</if>
+            <if test="settleTime != null">settle_time = #{settleTime},</if>
+            <if test="operator != null and operator != ''">operator = #{operator},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where charge_id = #{chargeId}
+    </update>
+
+    <delete id="deleteChargeByChargeId" parameterType="Long">
+        delete from his_charge where charge_id = #{chargeId}
+    </delete>
+
+    <delete id="deleteChargeByChargeIds" parameterType="String">
+        delete from his_charge where charge_id in
+        <foreach item="chargeId" collection="array" open="(" separator="," close=")">
+            #{chargeId}
+        </foreach>
+    </delete>
+
+    <update id="cancelBySource">
+        update his_charge set charge_status = '2'
+        where source_id = #{sourceId} and source_type = #{sourceType} and charge_status = '0'
+    </update>
+
+    <update id="refundBySource">
+        update his_charge set charge_status = '2'
+        where source_id = #{sourceId} and source_type = #{sourceType} and charge_status = '1'
+    </update>
+</mapper>

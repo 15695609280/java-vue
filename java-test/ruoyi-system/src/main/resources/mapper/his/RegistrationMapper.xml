@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.his.mapper.RegistrationMapper">
+
+    <resultMap type="Registration" id="RegistrationResult">
+        <id property="regId" column="reg_id" />
+        <result property="regNo" column="reg_no" />
+        <result property="patientId" column="patient_id" />
+        <result property="patientName" column="patient_name" />
+        <result property="patientNo" column="patient_no" />
+        <result property="gender" column="gender" />
+        <result property="age" column="age" />
+        <result property="deptId" column="dept_id" />
+        <result property="deptName" column="dept_name" />
+        <result property="doctorId" column="doctor_id" />
+        <result property="doctorName" column="doctor_name" />
+        <result property="scheduleId" column="schedule_id" />
+        <result property="regDate" column="reg_date" />
+        <result property="timeSlot" column="time_slot" />
+        <result property="queueNo" column="queue_no" />
+        <result property="regFee" column="reg_fee" />
+        <result property="visitStatus" column="visit_status" />
+        <result property="payStatus" column="pay_status" />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"  column="create_time"  />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"  column="update_time"  />
+        <result property="remark"      column="remark"       />
+    </resultMap>
+
+    <sql id="selectRegistrationVo">
+        select t.reg_id, t.reg_no, t.patient_id, t.dept_id, t.doctor_id, t.schedule_id, t.reg_date, t.time_slot, t.queue_no, t.reg_fee, t.visit_status, t.pay_status, p.patient_name, p.patient_no, p.gender, p.age, d.dept_name, doc.doctor_name
+        from his_registration t
+        left join his_patient p on p.patient_id = t.patient_id
+        left join his_department d on d.dept_id = t.dept_id
+        left join his_doctor doc on doc.doctor_id = t.doctor_id
+    </sql>
+
+    <select id="selectRegistrationList" parameterType="com.ruoyi.his.domain.Registration" resultMap="RegistrationResult">
+        <include refid="selectRegistrationVo"/>
+        <where>
+            <if test="regNo != null and regNo != ''"> AND t.reg_no = #{regNo}</if>
+            <if test="patientId != null"> AND t.patient_id = #{patientId}</if>
+            <if test="deptId != null"> AND t.dept_id = #{deptId}</if>
+            <if test="doctorId != null"> AND t.doctor_id = #{doctorId}</if>
+            <if test="regDate != null"> AND t.reg_date = #{regDate}</if>
+            <if test="visitStatus != null and visitStatus != ''"> AND t.visit_status = #{visitStatus}</if>
+        </where>
+        order by t.reg_id desc
+    </select>
+
+    <select id="selectRegistrationByRegId" parameterType="Long" resultMap="RegistrationResult">
+        <include refid="selectRegistrationVo"/>
+        where t.reg_id = #{regId}
+    </select>
+
+    <insert id="insertRegistration" parameterType="com.ruoyi.his.domain.Registration" useGeneratedKeys="true" keyProperty="regId">
+        insert into his_registration
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="regNo != null and regNo != ''">reg_no,</if>
+            <if test="patientId != null">patient_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="doctorId != null">doctor_id,</if>
+            <if test="scheduleId != null">schedule_id,</if>
+            <if test="regDate != null">reg_date,</if>
+            <if test="timeSlot != null and timeSlot != ''">time_slot,</if>
+            <if test="queueNo != null">queue_no,</if>
+            <if test="regFee != null">reg_fee,</if>
+            <if test="visitStatus != null and visitStatus != ''">visit_status,</if>
+            <if test="payStatus != null and payStatus != ''">pay_status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="regNo != null and regNo != ''">#{regNo},</if>
+            <if test="patientId != null">#{patientId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="doctorId != null">#{doctorId},</if>
+            <if test="scheduleId != null">#{scheduleId},</if>
+            <if test="regDate != null">#{regDate},</if>
+            <if test="timeSlot != null and timeSlot != ''">#{timeSlot},</if>
+            <if test="queueNo != null">#{queueNo},</if>
+            <if test="regFee != null">#{regFee},</if>
+            <if test="visitStatus != null and visitStatus != ''">#{visitStatus},</if>
+            <if test="payStatus != null and payStatus != ''">#{payStatus},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateRegistration" parameterType="com.ruoyi.his.domain.Registration">
+        update his_registration
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="regNo != null and regNo != ''">reg_no = #{regNo},</if>
+            <if test="patientId != null">patient_id = #{patientId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="doctorId != null">doctor_id = #{doctorId},</if>
+            <if test="scheduleId != null">schedule_id = #{scheduleId},</if>
+            <if test="regDate != null">reg_date = #{regDate},</if>
+            <if test="timeSlot != null and timeSlot != ''">time_slot = #{timeSlot},</if>
+            <if test="queueNo != null">queue_no = #{queueNo},</if>
+            <if test="regFee != null">reg_fee = #{regFee},</if>
+            <if test="visitStatus != null and visitStatus != ''">visit_status = #{visitStatus},</if>
+            <if test="payStatus != null and payStatus != ''">pay_status = #{payStatus},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where reg_id = #{regId}
+    </update>
+
+    <delete id="deleteRegistrationByRegId" parameterType="Long">
+        delete from his_registration where reg_id = #{regId}
+    </delete>
+
+    <delete id="deleteRegistrationByRegIds" parameterType="String">
+        delete from his_registration where reg_id in
+        <foreach item="regId" collection="array" open="(" separator="," close=")">
+            #{regId}
+        </foreach>
+    </delete>
+
+    <select id="selectMaxQueueNo" parameterType="Long" resultType="Integer">
+        select ifnull(max(queue_no), 0) from his_registration where schedule_id = #{scheduleId}
+    </select>
+
+    <update id="updateVisitStatus">
+        update his_registration set visit_status = #{visitStatus} where reg_id = #{regId}
+    </update>
+
+    <update id="updatePayStatus">
+        update his_registration set pay_status = #{payStatus} where reg_id = #{regId}
+    </update>
+
+    <select id="selectQueueList" parameterType="com.ruoyi.his.domain.Registration" resultMap="RegistrationResult">
+        <include refid="selectRegistrationVo"/>
+        <where>
+            t.visit_status in ('0','1','4')
+            <if test="regDate != null"> AND t.reg_date = #{regDate}</if>
+            <if test="deptId != null"> AND t.dept_id = #{deptId}</if>
+            <if test="doctorId != null"> AND t.doctor_id = #{doctorId}</if>
+            <if test="visitStatus != null and visitStatus != ''"> AND t.visit_status = #{visitStatus}</if>
+        </where>
+        order by t.queue_no
+    </select>
+</mapper>

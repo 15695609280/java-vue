@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.his.mapper.MedicalOrderMapper">
+
+    <resultMap type="MedicalOrder" id="MedicalOrderResult">
+        <id property="orderId" column="order_id" />
+        <result property="admId" column="adm_id" />
+        <result property="admNo" column="adm_no" />
+        <result property="patientId" column="patient_id" />
+        <result property="patientName" column="patient_name" />
+        <result property="doctorId" column="doctor_id" />
+        <result property="doctorName" column="doctor_name" />
+        <result property="orderType" column="order_type" />
+        <result property="content" column="content" />
+        <result property="drugId" column="drug_id" />
+        <result property="drugName" column="drug_name" />
+        <result property="dose" column="dose" />
+        <result property="frequency" column="frequency" />
+        <result property="startTime" column="start_time" />
+        <result property="endTime" column="end_time" />
+        <result property="orderStatus" column="order_status" />
+        <result property="execBy" column="exec_by" />
+        <result property="execTime" column="exec_time" />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"  column="create_time"  />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"  column="update_time"  />
+        <result property="remark"      column="remark"       />
+    </resultMap>
+
+    <sql id="selectMedicalOrderVo">
+        select t.order_id, t.adm_id, t.patient_id, t.doctor_id, t.order_type, t.content, t.drug_id, t.dose, t.frequency, t.start_time, t.end_time, t.order_status, t.exec_by, t.exec_time, a.adm_no, p.patient_name, doc.doctor_name, dg.drug_name
+        from his_medical_order t
+        left join his_patient p on p.patient_id = t.patient_id
+        left join his_admission a on a.adm_id = t.adm_id
+        left join his_doctor doc on doc.doctor_id = t.doctor_id
+        left join his_drug dg on dg.drug_id = t.drug_id
+    </sql>
+
+    <select id="selectMedicalOrderList" parameterType="com.ruoyi.his.domain.MedicalOrder" resultMap="MedicalOrderResult">
+        <include refid="selectMedicalOrderVo"/>
+        <where>
+            <if test="admId != null"> AND t.adm_id = #{admId}</if>
+            <if test="patientId != null"> AND t.patient_id = #{patientId}</if>
+            <if test="orderStatus != null and orderStatus != ''"> AND t.order_status = #{orderStatus}</if>
+        </where>
+        order by t.order_id desc
+    </select>
+
+    <select id="selectMedicalOrderByOrderId" parameterType="Long" resultMap="MedicalOrderResult">
+        <include refid="selectMedicalOrderVo"/>
+        where t.order_id = #{orderId}
+    </select>
+
+    <insert id="insertMedicalOrder" parameterType="com.ruoyi.his.domain.MedicalOrder" useGeneratedKeys="true" keyProperty="orderId">
+        insert into his_medical_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="admId != null">adm_id,</if>
+            <if test="patientId != null">patient_id,</if>
+            <if test="doctorId != null">doctor_id,</if>
+            <if test="orderType != null and orderType != ''">order_type,</if>
+            <if test="content != null and content != ''">content,</if>
+            <if test="drugId != null">drug_id,</if>
+            <if test="dose != null and dose != ''">dose,</if>
+            <if test="frequency != null and frequency != ''">frequency,</if>
+            <if test="startTime != null">start_time,</if>
+            <if test="endTime != null">end_time,</if>
+            <if test="orderStatus != null and orderStatus != ''">order_status,</if>
+            <if test="execBy != null and execBy != ''">exec_by,</if>
+            <if test="execTime != null">exec_time,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="admId != null">#{admId},</if>
+            <if test="patientId != null">#{patientId},</if>
+            <if test="doctorId != null">#{doctorId},</if>
+            <if test="orderType != null and orderType != ''">#{orderType},</if>
+            <if test="content != null and content != ''">#{content},</if>
+            <if test="drugId != null">#{drugId},</if>
+            <if test="dose != null and dose != ''">#{dose},</if>
+            <if test="frequency != null and frequency != ''">#{frequency},</if>
+            <if test="startTime != null">#{startTime},</if>
+            <if test="endTime != null">#{endTime},</if>
+            <if test="orderStatus != null and orderStatus != ''">#{orderStatus},</if>
+            <if test="execBy != null and execBy != ''">#{execBy},</if>
+            <if test="execTime != null">#{execTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateMedicalOrder" parameterType="com.ruoyi.his.domain.MedicalOrder">
+        update his_medical_order
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="admId != null">adm_id = #{admId},</if>
+            <if test="patientId != null">patient_id = #{patientId},</if>
+            <if test="doctorId != null">doctor_id = #{doctorId},</if>
+            <if test="orderType != null and orderType != ''">order_type = #{orderType},</if>
+            <if test="content != null and content != ''">content = #{content},</if>
+            <if test="drugId != null">drug_id = #{drugId},</if>
+            <if test="dose != null and dose != ''">dose = #{dose},</if>
+            <if test="frequency != null and frequency != ''">frequency = #{frequency},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="orderStatus != null and orderStatus != ''">order_status = #{orderStatus},</if>
+            <if test="execBy != null and execBy != ''">exec_by = #{execBy},</if>
+            <if test="execTime != null">exec_time = #{execTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where order_id = #{orderId}
+    </update>
+
+    <delete id="deleteMedicalOrderByOrderId" parameterType="Long">
+        delete from his_medical_order where order_id = #{orderId}
+    </delete>
+
+    <delete id="deleteMedicalOrderByOrderIds" parameterType="String">
+        delete from his_medical_order where order_id in
+        <foreach item="orderId" collection="array" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+    </delete>
+
+    <update id="updateStatus">
+        update his_medical_order
+        <set>
+            order_status = #{status},
+            <if test="execBy != null">exec_by = #{execBy}, exec_time = now(),</if>
+            <if test="status == '2'">end_time = now(),</if>
+        </set>
+        where order_id = #{orderId}
+    </update>
+</mapper>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.his.mapper.FeeItemMapper">
+
+    <resultMap type="FeeItem" id="FeeItemResult">
+        <id property="itemId" column="item_id" />
+        <result property="itemName" column="item_name" />
+        <result property="category" column="category" />
+        <result property="price" column="price" />
+        <result property="unit" column="unit" />
+        <result property="status" column="status" />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"  column="create_time"  />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"  column="update_time"  />
+        <result property="remark"      column="remark"       />
+    </resultMap>
+
+    <sql id="selectFeeItemVo">
+        select t.item_id, t.item_name, t.category, t.price, t.unit, t.status
+        from his_fee_item t
+    </sql>
+
+    <select id="selectFeeItemList" parameterType="com.ruoyi.his.domain.FeeItem" resultMap="FeeItemResult">
+        <include refid="selectFeeItemVo"/>
+        <where>
+            <if test="itemName != null and itemName != ''"> AND t.item_name like concat('%', #{itemName}, '%')</if>
+        </where>
+        order by t.item_id
+    </select>
+
+    <select id="selectFeeItemByItemId" parameterType="Long" resultMap="FeeItemResult">
+        <include refid="selectFeeItemVo"/>
+        where t.item_id = #{itemId}
+    </select>
+
+    <insert id="insertFeeItem" parameterType="com.ruoyi.his.domain.FeeItem" useGeneratedKeys="true" keyProperty="itemId">
+        insert into his_fee_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="itemName != null and itemName != ''">item_name,</if>
+            <if test="category != null and category != ''">category,</if>
+            <if test="price != null">price,</if>
+            <if test="unit != null and unit != ''">unit,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="itemName != null and itemName != ''">#{itemName},</if>
+            <if test="category != null and category != ''">#{category},</if>
+            <if test="price != null">#{price},</if>
+            <if test="unit != null and unit != ''">#{unit},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateFeeItem" parameterType="com.ruoyi.his.domain.FeeItem">
+        update his_fee_item
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="itemName != null and itemName != ''">item_name = #{itemName},</if>
+            <if test="category != null and category != ''">category = #{category},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="unit != null and unit != ''">unit = #{unit},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where item_id = #{itemId}
+    </update>
+
+    <delete id="deleteFeeItemByItemId" parameterType="Long">
+        delete from his_fee_item where item_id = #{itemId}
+    </delete>
+
+    <delete id="deleteFeeItemByItemIds" parameterType="String">
+        delete from his_fee_item where item_id in
+        <foreach item="itemId" collection="array" open="(" separator="," close=")">
+            #{itemId}
+        </foreach>
+    </delete>
+</mapper>

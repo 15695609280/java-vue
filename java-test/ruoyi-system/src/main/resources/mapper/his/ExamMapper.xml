@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.his.mapper.ExamMapper">
+
+    <resultMap type="Exam" id="ExamResult">
+        <id property="examId" column="exam_id" />
+        <result property="examNo" column="exam_no" />
+        <result property="patientId" column="patient_id" />
+        <result property="patientName" column="patient_name" />
+        <result property="doctorId" column="doctor_id" />
+        <result property="doctorName" column="doctor_name" />
+        <result property="examType" column="exam_type" />
+        <result property="bodyPart" column="body_part" />
+        <result property="purpose" column="purpose" />
+        <result property="status" column="status" />
+        <result property="applyTime" column="apply_time" />
+        <result property="reportTime" column="report_time" />
+        <result property="finding" column="finding" />
+        <result property="conclusion" column="conclusion" />
+        <result property="reportBy" column="report_by" />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"  column="create_time"  />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"  column="update_time"  />
+        <result property="remark"      column="remark"       />
+    </resultMap>
+
+    <sql id="selectExamVo">
+        select t.exam_id, t.exam_no, t.patient_id, t.doctor_id, t.exam_type, t.body_part, t.purpose, t.status, t.apply_time, t.report_time, t.finding, t.conclusion, t.report_by, p.patient_name, doc.doctor_name
+        from his_exam t
+        left join his_patient p on p.patient_id = t.patient_id
+        left join his_doctor doc on doc.doctor_id = t.doctor_id
+    </sql>
+
+    <select id="selectExamList" parameterType="com.ruoyi.his.domain.Exam" resultMap="ExamResult">
+        <include refid="selectExamVo"/>
+        <where>
+            <if test="examNo != null and examNo != ''"> AND t.exam_no = #{examNo}</if>
+            <if test="patientId != null"> AND t.patient_id = #{patientId}</if>
+            <if test="status != null and status != ''"> AND t.status = #{status}</if>
+        </where>
+        order by t.exam_id desc
+    </select>
+
+    <select id="selectExamByExamId" parameterType="Long" resultMap="ExamResult">
+        <include refid="selectExamVo"/>
+        where t.exam_id = #{examId}
+    </select>
+
+    <insert id="insertExam" parameterType="com.ruoyi.his.domain.Exam" useGeneratedKeys="true" keyProperty="examId">
+        insert into his_exam
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="examNo != null and examNo != ''">exam_no,</if>
+            <if test="patientId != null">patient_id,</if>
+            <if test="doctorId != null">doctor_id,</if>
+            <if test="examType != null and examType != ''">exam_type,</if>
+            <if test="bodyPart != null and bodyPart != ''">body_part,</if>
+            <if test="purpose != null and purpose != ''">purpose,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="applyTime != null">apply_time,</if>
+            <if test="reportTime != null">report_time,</if>
+            <if test="finding != null and finding != ''">finding,</if>
+            <if test="conclusion != null and conclusion != ''">conclusion,</if>
+            <if test="reportBy != null and reportBy != ''">report_by,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="examNo != null and examNo != ''">#{examNo},</if>
+            <if test="patientId != null">#{patientId},</if>
+            <if test="doctorId != null">#{doctorId},</if>
+            <if test="examType != null and examType != ''">#{examType},</if>
+            <if test="bodyPart != null and bodyPart != ''">#{bodyPart},</if>
+            <if test="purpose != null and purpose != ''">#{purpose},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="applyTime != null">#{applyTime},</if>
+            <if test="reportTime != null">#{reportTime},</if>
+            <if test="finding != null and finding != ''">#{finding},</if>
+            <if test="conclusion != null and conclusion != ''">#{conclusion},</if>
+            <if test="reportBy != null and reportBy != ''">#{reportBy},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateExam" parameterType="com.ruoyi.his.domain.Exam">
+        update his_exam
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="examNo != null and examNo != ''">exam_no = #{examNo},</if>
+            <if test="patientId != null">patient_id = #{patientId},</if>
+            <if test="doctorId != null">doctor_id = #{doctorId},</if>
+            <if test="examType != null and examType != ''">exam_type = #{examType},</if>
+            <if test="bodyPart != null and bodyPart != ''">body_part = #{bodyPart},</if>
+            <if test="purpose != null and purpose != ''">purpose = #{purpose},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="applyTime != null">apply_time = #{applyTime},</if>
+            <if test="reportTime != null">report_time = #{reportTime},</if>
+            <if test="finding != null and finding != ''">finding = #{finding},</if>
+            <if test="conclusion != null and conclusion != ''">conclusion = #{conclusion},</if>
+            <if test="reportBy != null and reportBy != ''">report_by = #{reportBy},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where exam_id = #{examId}
+    </update>
+
+    <delete id="deleteExamByExamId" parameterType="Long">
+        delete from his_exam where exam_id = #{examId}
+    </delete>
+
+    <delete id="deleteExamByExamIds" parameterType="String">
+        delete from his_exam where exam_id in
+        <foreach item="examId" collection="array" open="(" separator="," close=")">
+            #{examId}
+        </foreach>
+    </delete>
+
+    <update id="updateStatus">
+        update his_exam set status = #{status} where exam_id = #{examId}
+    </update>
+</mapper>

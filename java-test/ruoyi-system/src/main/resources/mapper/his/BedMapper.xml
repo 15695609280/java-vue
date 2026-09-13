@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.his.mapper.BedMapper">
+
+    <resultMap type="Bed" id="BedResult">
+        <id property="bedId" column="bed_id" />
+        <result property="wardId" column="ward_id" />
+        <result property="wardName" column="ward_name" />
+        <result property="bedNo" column="bed_no" />
+        <result property="bedType" column="bed_type" />
+        <result property="pricePerDay" column="price_per_day" />
+        <result property="status" column="status" />
+        <result property="patientName" column="adm_status='0' limit 1)" />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"  column="create_time"  />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"  column="update_time"  />
+        <result property="remark"      column="remark"       />
+    </resultMap>
+
+    <sql id="selectBedVo">
+        select t.bed_id, t.ward_id, t.bed_no, t.bed_type, t.price_per_day, t.status, w.ward_name, (select p.patient_name from his_admission a join his_patient p on p.patient_id=a.patient_id where a.bed_id=t.bed_id and a.adm_status='0' limit 1)
+        from his_bed t
+        left join his_ward w on w.ward_id = t.ward_id
+    </sql>
+
+    <select id="selectBedList" parameterType="com.ruoyi.his.domain.Bed" resultMap="BedResult">
+        <include refid="selectBedVo"/>
+        <where>
+            <if test="wardId != null"> AND t.ward_id = #{wardId}</if>
+        </where>
+        order by t.ward_id, t.bed_no
+    </select>
+
+    <select id="selectBedByBedId" parameterType="Long" resultMap="BedResult">
+        <include refid="selectBedVo"/>
+        where t.bed_id = #{bedId}
+    </select>
+
+    <insert id="insertBed" parameterType="com.ruoyi.his.domain.Bed" useGeneratedKeys="true" keyProperty="bedId">
+        insert into his_bed
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="wardId != null">ward_id,</if>
+            <if test="bedNo != null and bedNo != ''">bed_no,</if>
+            <if test="bedType != null and bedType != ''">bed_type,</if>
+            <if test="pricePerDay != null">price_per_day,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="wardId != null">#{wardId},</if>
+            <if test="bedNo != null and bedNo != ''">#{bedNo},</if>
+            <if test="bedType != null and bedType != ''">#{bedType},</if>
+            <if test="pricePerDay != null">#{pricePerDay},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateBed" parameterType="com.ruoyi.his.domain.Bed">
+        update his_bed
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="wardId != null">ward_id = #{wardId},</if>
+            <if test="bedNo != null and bedNo != ''">bed_no = #{bedNo},</if>
+            <if test="bedType != null and bedType != ''">bed_type = #{bedType},</if>
+            <if test="pricePerDay != null">price_per_day = #{pricePerDay},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where bed_id = #{bedId}
+    </update>
+
+    <delete id="deleteBedByBedId" parameterType="Long">
+        delete from his_bed where bed_id = #{bedId}
+    </delete>
+
+    <delete id="deleteBedByBedIds" parameterType="String">
+        delete from his_bed where bed_id in
+        <foreach item="bedId" collection="array" open="(" separator="," close=")">
+            #{bedId}
+        </foreach>
+    </delete>
+
+    <select id="selectFreeBeds" parameterType="Long" resultMap="BedResult">
+        select t.* from his_bed t where t.ward_id = #{wardId} and t.status = '0' order by t.bed_no
+    </select>
+</mapper>

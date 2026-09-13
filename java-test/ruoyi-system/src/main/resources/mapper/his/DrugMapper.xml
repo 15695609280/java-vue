@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.his.mapper.DrugMapper">
+
+    <resultMap type="Drug" id="DrugResult">
+        <id property="drugId" column="drug_id" />
+        <result property="drugCode" column="drug_code" />
+        <result property="drugName" column="drug_name" />
+        <result property="category" column="category" />
+        <result property="specification" column="specification" />
+        <result property="unit" column="unit" />
+        <result property="price" column="price" />
+        <result property="stock" column="stock" />
+        <result property="stockWarn" column="stock_warn" />
+        <result property="manufacturer" column="manufacturer" />
+        <result property="approvalNo" column="approval_no" />
+        <result property="isPrescription" column="is_prescription" />
+        <result property="status" column="status" />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"  column="create_time"  />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"  column="update_time"  />
+        <result property="remark"      column="remark"       />
+    </resultMap>
+
+    <sql id="selectDrugVo">
+        select t.drug_id, t.drug_code, t.drug_name, t.category, t.specification, t.unit, t.price, t.stock, t.stock_warn, t.manufacturer, t.approval_no, t.is_prescription, t.status
+        from his_drug t
+    </sql>
+
+    <select id="selectDrugList" parameterType="com.ruoyi.his.domain.Drug" resultMap="DrugResult">
+        <include refid="selectDrugVo"/>
+        <where>
+            <if test="drugCode != null and drugCode != ''"> AND t.drug_code = #{drugCode}</if>
+            <if test="drugName != null and drugName != ''"> AND t.drug_name like concat('%', #{drugName}, '%')</if>
+        </where>
+        order by t.drug_id
+    </select>
+
+    <select id="selectDrugByDrugId" parameterType="Long" resultMap="DrugResult">
+        <include refid="selectDrugVo"/>
+        where t.drug_id = #{drugId}
+    </select>
+
+    <insert id="insertDrug" parameterType="com.ruoyi.his.domain.Drug" useGeneratedKeys="true" keyProperty="drugId">
+        insert into his_drug
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="drugCode != null and drugCode != ''">drug_code,</if>
+            <if test="drugName != null and drugName != ''">drug_name,</if>
+            <if test="category != null and category != ''">category,</if>
+            <if test="specification != null and specification != ''">specification,</if>
+            <if test="unit != null and unit != ''">unit,</if>
+            <if test="price != null">price,</if>
+            <if test="stock != null">stock,</if>
+            <if test="stockWarn != null">stock_warn,</if>
+            <if test="manufacturer != null and manufacturer != ''">manufacturer,</if>
+            <if test="approvalNo != null and approvalNo != ''">approval_no,</if>
+            <if test="isPrescription != null and isPrescription != ''">is_prescription,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="drugCode != null and drugCode != ''">#{drugCode},</if>
+            <if test="drugName != null and drugName != ''">#{drugName},</if>
+            <if test="category != null and category != ''">#{category},</if>
+            <if test="specification != null and specification != ''">#{specification},</if>
+            <if test="unit != null and unit != ''">#{unit},</if>
+            <if test="price != null">#{price},</if>
+            <if test="stock != null">#{stock},</if>
+            <if test="stockWarn != null">#{stockWarn},</if>
+            <if test="manufacturer != null and manufacturer != ''">#{manufacturer},</if>
+            <if test="approvalNo != null and approvalNo != ''">#{approvalNo},</if>
+            <if test="isPrescription != null and isPrescription != ''">#{isPrescription},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateDrug" parameterType="com.ruoyi.his.domain.Drug">
+        update his_drug
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="drugCode != null and drugCode != ''">drug_code = #{drugCode},</if>
+            <if test="drugName != null and drugName != ''">drug_name = #{drugName},</if>
+            <if test="category != null and category != ''">category = #{category},</if>
+            <if test="specification != null and specification != ''">specification = #{specification},</if>
+            <if test="unit != null and unit != ''">unit = #{unit},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="stock != null">stock = #{stock},</if>
+            <if test="stockWarn != null">stock_warn = #{stockWarn},</if>
+            <if test="manufacturer != null and manufacturer != ''">manufacturer = #{manufacturer},</if>
+            <if test="approvalNo != null and approvalNo != ''">approval_no = #{approvalNo},</if>
+            <if test="isPrescription != null and isPrescription != ''">is_prescription = #{isPrescription},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where drug_id = #{drugId}
+    </update>
+
+    <delete id="deleteDrugByDrugId" parameterType="Long">
+        delete from his_drug where drug_id = #{drugId}
+    </delete>
+
+    <delete id="deleteDrugByDrugIds" parameterType="String">
+        delete from his_drug where drug_id in
+        <foreach item="drugId" collection="array" open="(" separator="," close=")">
+            #{drugId}
+        </foreach>
+    </delete>
+
+    <update id="deductStock">
+        update his_drug set stock = stock - #{qty} where drug_id = #{drugId} and stock >= #{qty}
+    </update>
+
+    <update id="addStock">
+        update his_drug set stock = stock + #{qty} where drug_id = #{drugId}
+    </update>
+
+    <select id="selectWarnList" resultMap="DrugResult">
+        <include refid="selectDrugVo"/>
+        where t.stock &lt;= t.stock_warn order by t.stock
+    </select>
+</mapper>

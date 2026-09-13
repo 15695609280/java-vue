@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.his.mapper.PrescriptionItemMapper">
+
+    <resultMap type="PrescriptionItem" id="PrescriptionItemResult">
+        <id property="itemId" column="item_id" />
+        <result property="rxId" column="rx_id" />
+        <result property="drugId" column="drug_id" />
+        <result property="drugName" column="drug_name" />
+        <result property="specification" column="specification" />
+        <result property="unit" column="unit" />
+        <result property="price" column="price" />
+        <result property="quantity" column="quantity" />
+        <result property="amount" column="amount" />
+        <result property="usageDose" column="usage_dose" />
+        <result property="frequency" column="frequency" />
+        <result property="days" column="days" />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"  column="create_time"  />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"  column="update_time"  />
+        <result property="remark"      column="remark"       />
+    </resultMap>
+
+    <sql id="selectPrescriptionItemVo">
+        select t.item_id, t.rx_id, t.drug_id, t.drug_name, t.specification, t.unit, t.price, t.quantity, t.amount, t.usage_dose, t.frequency, t.days
+        from his_prescription_item t
+    </sql>
+
+    <select id="selectPrescriptionItemList" parameterType="com.ruoyi.his.domain.PrescriptionItem" resultMap="PrescriptionItemResult">
+        <include refid="selectPrescriptionItemVo"/>
+        <where>
+            <if test="rxId != null"> AND t.rx_id = #{rxId}</if>
+        </where>
+        order by t.item_id
+    </select>
+
+    <select id="selectPrescriptionItemByItemId" parameterType="Long" resultMap="PrescriptionItemResult">
+        <include refid="selectPrescriptionItemVo"/>
+        where t.item_id = #{itemId}
+    </select>
+
+    <insert id="insertPrescriptionItem" parameterType="com.ruoyi.his.domain.PrescriptionItem" useGeneratedKeys="true" keyProperty="itemId">
+        insert into his_prescription_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="rxId != null">rx_id,</if>
+            <if test="drugId != null">drug_id,</if>
+            <if test="drugName != null and drugName != ''">drug_name,</if>
+            <if test="specification != null and specification != ''">specification,</if>
+            <if test="unit != null and unit != ''">unit,</if>
+            <if test="price != null">price,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="amount != null">amount,</if>
+            <if test="usageDose != null and usageDose != ''">usage_dose,</if>
+            <if test="frequency != null and frequency != ''">frequency,</if>
+            <if test="days != null">days,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="rxId != null">#{rxId},</if>
+            <if test="drugId != null">#{drugId},</if>
+            <if test="drugName != null and drugName != ''">#{drugName},</if>
+            <if test="specification != null and specification != ''">#{specification},</if>
+            <if test="unit != null and unit != ''">#{unit},</if>
+            <if test="price != null">#{price},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="amount != null">#{amount},</if>
+            <if test="usageDose != null and usageDose != ''">#{usageDose},</if>
+            <if test="frequency != null and frequency != ''">#{frequency},</if>
+            <if test="days != null">#{days},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePrescriptionItem" parameterType="com.ruoyi.his.domain.PrescriptionItem">
+        update his_prescription_item
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="rxId != null">rx_id = #{rxId},</if>
+            <if test="drugId != null">drug_id = #{drugId},</if>
+            <if test="drugName != null and drugName != ''">drug_name = #{drugName},</if>
+            <if test="specification != null and specification != ''">specification = #{specification},</if>
+            <if test="unit != null and unit != ''">unit = #{unit},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="usageDose != null and usageDose != ''">usage_dose = #{usageDose},</if>
+            <if test="frequency != null and frequency != ''">frequency = #{frequency},</if>
+            <if test="days != null">days = #{days},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where item_id = #{itemId}
+    </update>
+
+    <delete id="deletePrescriptionItemByItemId" parameterType="Long">
+        delete from his_prescription_item where item_id = #{itemId}
+    </delete>
+
+    <delete id="deletePrescriptionItemByItemIds" parameterType="String">
+        delete from his_prescription_item where item_id in
+        <foreach item="itemId" collection="array" open="(" separator="," close=")">
+            #{itemId}
+        </foreach>
+    </delete>
+
+    <select id="selectByRxId" parameterType="Long" resultMap="PrescriptionItemResult">
+        <include refid="selectPrescriptionItemVo"/>
+        where t.rx_id = #{rxId} order by t.item_id
+    </select>
+
+    <delete id="deleteByRxId" parameterType="Long">
+        delete from his_prescription_item where rx_id = #{rxId}
+    </delete>
+</mapper>
