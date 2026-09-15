@@ -1,9 +1,10 @@
 package com.ruoyi.his.domain;
 
+import java.util.Date;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
-import java.util.Date;
 
 /**
  * 患者对象 his_patient
@@ -38,6 +39,9 @@ public class Patient extends BaseEntity
 
     /** 联系电话 */
     private String phone;
+
+    /** 紧急联系电话 */
+    private String emergencyPhone;
 
     /** 住址 */
     private String address;
@@ -78,6 +82,9 @@ public class Patient extends BaseEntity
 
     public void setPhone(String phone) { this.phone = phone; }
     public String getPhone() { return phone; }
+
+    public void setEmergencyPhone(String emergencyPhone) { this.emergencyPhone = emergencyPhone; }
+    public String getEmergencyPhone() { return emergencyPhone; }
 
     public void setAddress(String address) { this.address = address; }
     public String getAddress() { return address; }

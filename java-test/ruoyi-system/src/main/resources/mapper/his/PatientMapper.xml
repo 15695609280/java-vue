@@ -13,6 +13,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="age" column="age" />
         <result property="idCard" column="id_card" />
         <result property="phone" column="phone" />
+        <result property="emergencyPhone" column="emergency_phone" />
         <result property="address" column="address" />
         <result property="bloodType" column="blood_type" />
         <result property="insuranceType" column="insurance_type" />
@@ -26,7 +27,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectPatientVo">
-        select t.patient_id, t.patient_no, t.patient_name, t.gender, t.birth_date, t.age, t.id_card, t.phone, t.address, t.blood_type, t.insurance_type, t.allergy, t.status
+        select t.patient_id, t.patient_no, t.patient_name, t.gender, t.birth_date, t.age, t.id_card, t.phone, t.emergency_phone, t.address, t.blood_type, t.insurance_type, t.allergy, t.status
         from his_patient t
     </sql>
 
@@ -56,6 +57,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="age != null">age,</if>
             <if test="idCard != null and idCard != ''">id_card,</if>
             <if test="phone != null and phone != ''">phone,</if>
+            <if test="emergencyPhone != null and emergencyPhone != ''">emergency_phone,</if>
             <if test="address != null and address != ''">address,</if>
             <if test="bloodType != null and bloodType != ''">blood_type,</if>
             <if test="insuranceType != null and insuranceType != ''">insurance_type,</if>
@@ -73,6 +75,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="age != null">#{age},</if>
             <if test="idCard != null and idCard != ''">#{idCard},</if>
             <if test="phone != null and phone != ''">#{phone},</if>
+            <if test="emergencyPhone != null and emergencyPhone != ''">#{emergencyPhone},</if>
             <if test="address != null and address != ''">#{address},</if>
             <if test="bloodType != null and bloodType != ''">#{bloodType},</if>
             <if test="insuranceType != null and insuranceType != ''">#{insuranceType},</if>
@@ -94,6 +97,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="age != null">age = #{age},</if>
             <if test="idCard != null and idCard != ''">id_card = #{idCard},</if>
             <if test="phone != null and phone != ''">phone = #{phone},</if>
+            <if test="emergencyPhone != null and emergencyPhone != ''">emergency_phone = #{emergencyPhone},</if>
             <if test="address != null and address != ''">address = #{address},</if>
             <if test="bloodType != null and bloodType != ''">blood_type = #{bloodType},</if>
             <if test="insuranceType != null and insuranceType != ''">insurance_type = #{insuranceType},</if>
