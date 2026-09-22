@@ -6,6 +6,7 @@ import { tansParams, blobValidate } from '@/utils/ruoyi'
 import cache from '@/plugins/cache'
 import { saveAs } from 'file-saver'
 import useUserStore from '@/store/modules/user'
+import { notifyRequest } from './requestObserver'
 
 let downloadLoadingInstance
 // 是否显示重新登录
@@ -66,6 +67,7 @@ service.interceptors.request.use(config => {
       }
     }
   }
+  notifyRequest({ phase: 'start', config })
   return config
 }, error => {
     console.log(error)
@@ -76,6 +78,7 @@ service.interceptors.request.use(config => {
 service.interceptors.response.use(res => {
     // 未设置状态码则默认成功状态
     const code = res.data.code || 200
+    notifyRequest({ phase: 'end', config: res.config, ok: Number(code) === 200, businessResponse: true, message: res.data.msg })
     // 获取错误信息
     const msg = errorCode[code] || res.data.msg || errorCode['default']
     // 二进制数据则直接返回
@@ -109,6 +112,7 @@ service.interceptors.response.use(res => {
     }
   },
   error => {
+    notifyRequest({ phase: 'end', config: error.config, ok: false, message: error.message })
     console.log('err' + error)
     let { message } = error
     if (message == "Network Error") {
