@@ -61,20 +61,7 @@ public class AiAssistantController extends BaseController
             return error("消息长度不能超过 2000 字");
         }
 
-        List<Map<String, String>> history = new ArrayList<>();
-        Object rawHistory = body.get("history");
-        if (rawHistory instanceof List<?> list)
-        {
-            for (Object item : list)
-            {
-                if (item instanceof Map<?, ?> m)
-                {
-                    history.add(Map.of(
-                            "role", String.valueOf(m.get("role")),
-                            "content", String.valueOf(m.get("content"))));
-                }
-            }
-        }
+        List<Map<String, String>> history = readHistory(body);
         String page = String.valueOf(body.getOrDefault("page", ""));
         Object rawCtx = body.get("pageContext");
         String pageContext = rawCtx == null ? "" : String.valueOf(rawCtx);
@@ -83,7 +70,7 @@ public class AiAssistantController extends BaseController
             pageContext = pageContext.substring(0, 30000);
         }
 
-        Map<String, Object> result = aiAssistantService.chat(message, history, page, pageContext, images);
+        Map<String, Object> result = aiAssistantService.chat(message, history, page, pageContext, images, readTaskRecords(body));
         AjaxResult ajax = AjaxResult.success();
         ajax.put("answer", result.get("answer"));
         ajax.put("navigate", result.get("navigate"));
@@ -103,9 +90,9 @@ public class AiAssistantController extends BaseController
         {
             return error("目标不能为空");
         }
-        if (goal.length() > 500)
+        if (goal.length() > 4000)
         {
-            return error("目标长度不能超过 500 字");
+            return error("目标长度不能超过 4000 字");
         }
         String page = String.valueOf(body.getOrDefault("page", ""));
         Object rawCtx = body.get("pageContext");
@@ -181,11 +168,42 @@ public class AiAssistantController extends BaseController
             stepNo = n.intValue();
         }
 
-        Map<String, Object> result = aiAssistantService.agentStep(goal, page, pageContext, actions, images, digest, stepNo);
+        Map<String, Object> result = aiAssistantService.agentStep(goal, page, pageContext, actions, images, digest, stepNo,
+                readHistory(body), readTaskRecords(body));
         AjaxResult ajax = AjaxResult.success();
         ajax.put("say", result.get("say"));
         ajax.put("action", result.get("action"));
         ajax.put("done", result.get("done"));
         return ajax;
+    }
+
+    private List<Map<String, String>> readHistory(Map<String, Object> body)
+    {
+        List<Map<String, String>> history = new ArrayList<>();
+        if (body.get("history") instanceof List<?> list)
+        {
+            for (Object item : list.subList(Math.max(0, list.size() - 40), list.size()))
+            {
+                if (item instanceof Map<?, ?> m && m.get("role") instanceof String role
+                        && m.get("content") instanceof String content)
+                {
+                    history.add(Map.of("role", role, "content", content));
+                }
+            }
+        }
+        return history;
+    }
+
+    private List<String> readTaskRecords(Map<String, Object> body)
+    {
+        List<String> records = new ArrayList<>();
+        if (body.get("taskRecords") instanceof List<?> list)
+        {
+            for (Object item : list.subList(Math.max(0, list.size() - 6), list.size()))
+            {
+                if (item instanceof String text && !text.isBlank()) records.add(text.substring(0, Math.min(2000, text.length())));
+            }
+        }
+        return records;
     }
 }

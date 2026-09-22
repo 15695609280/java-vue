@@ -490,6 +490,8 @@ export async function runAgent(goal, ctx) {
       try {
         res = await stepRequest({
           goal,
+          history: ctx.history || [],
+          taskRecords: ctx.taskRecords || [],
           page: `${route.path} ${route.meta.title || ''}`.trim(),
           pageContext: collectPageContext(route),
           // 最近动作带明细（含填写值），更早的压成摘要，长任务也不丢记忆

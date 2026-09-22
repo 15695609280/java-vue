@@ -58,20 +58,20 @@ public class AiAssistantService
      * 与 AI 助手对话
      *
      * @param message     用户问题
-     * @param history     会话历史（role/content），仅保留最近 8 条
+     * @param history     会话历史（role/content），保留最近 40 条并限制总长度
      * @param page        用户当前所在页面（路由路径 + 标题）
      * @param pageContext 当前页面实时快照（表格数据、统计数字等），可为空
      * @param images      用户上传的图片（data:image/...;base64,...），可为空
      * @return { answer, navigate:{path,menuText,group}|null, steps:[{target,title,content}] }
      */
-    public Map<String, Object> chat(String message, List<Map<String, String>> history, String page, String pageContext, List<String> images)
+    public Map<String, Object> chat(String message, List<Map<String, String>> history, String page, String pageContext, List<String> images, List<String> taskRecords)
     {
         checkConfig();
         try
         {
             boolean hasImages = images != null && !images.isEmpty();
             String useModel = (hasImages && visionModel != null && !visionModel.isBlank()) ? visionModel : model;
-            return parseAnswer(callUpstream(buildChatMessages(message, history, page, pageContext, images), useModel, hasImages, "low"));
+            return parseAnswer(callUpstream(buildChatMessages(message, history, page, pageContext, images, taskRecords), useModel, hasImages, "low"));
         }
         catch (ServiceException e)
         {
@@ -96,7 +96,8 @@ public class AiAssistantService
      * @param stepNo      当前步数序号
      * @return { say, action:{type,target,value}, done }
      */
-    public Map<String, Object> agentStep(String goal, String page, String pageContext, List<Map<String, Object>> actions, List<String> images, List<String> digest, int stepNo)
+    public Map<String, Object> agentStep(String goal, String page, String pageContext, List<Map<String, Object>> actions, List<String> images, List<String> digest, int stepNo,
+            List<Map<String, String>> history, List<String> taskRecords)
     {
         checkConfig();
         try
@@ -105,6 +106,7 @@ public class AiAssistantService
             String useModel = (hasImages && visionModel != null && !visionModel.isBlank()) ? visionModel : model;
             ArrayNode messages = objectMapper.createArrayNode();
             messages.addObject().put("role", "system").put("content", agentPrompt(page, pageContext));
+            appendConversation(messages, history, taskRecords);
             ObjectNode userNode = messages.addObject().put("role", "user");
             if (hasImages)
             {
@@ -175,31 +177,12 @@ public class AiAssistantService
         return root.path("choices").path(0).path("message").path("content").asText("");
     }
 
-    private ArrayNode buildChatMessages(String message, List<Map<String, String>> history, String page, String pageContext, List<String> images)
+    private ArrayNode buildChatMessages(String message, List<Map<String, String>> history, String page, String pageContext, List<String> images, List<String> taskRecords)
     {
         ArrayNode messages = objectMapper.createArrayNode();
         messages.addObject().put("role", "system").put("content", systemPrompt(page, pageContext));
 
-        if (history != null)
-        {
-            int start = Math.max(0, history.size() - 8);
-            for (int i = start; i < history.size(); i++)
-            {
-                Map<String, String> h = history.get(i);
-                String role = h == null ? null : h.get("role");
-                String content = h == null ? null : h.get("content");
-                if (role == null || content == null || content.isBlank())
-                {
-                    continue;
-                }
-                if (!"user".equals(role) && !"assistant".equals(role))
-                {
-                    continue;
-                }
-                messages.addObject().put("role", role)
-                        .put("content", content.length() > 2000 ? content.substring(0, 2000) : content);
-            }
-        }
+        appendConversation(messages, history, taskRecords);
         // 带图时用户消息为多模态 content 数组（OpenAI 兼容格式）
         ObjectNode userNode = messages.addObject().put("role", "user");
         if (images == null || images.isEmpty())
@@ -216,6 +199,37 @@ public class AiAssistantService
             }
         }
         return messages;
+    }
+
+    private void appendConversation(ArrayNode messages, List<Map<String, String>> history, List<String> taskRecords)
+    {
+        List<ObjectNode> recent = new ArrayList<>();
+        int budget = 24000;
+        if (history != null)
+        {
+            for (int i = history.size() - 1; i >= 0 && recent.size() < 40 && budget > 0; i--)
+            {
+                Map<String, String> h = history.get(i);
+                if (h == null) continue;
+                String role = h.get("role");
+                String content = h.get("content");
+                if ((!"user".equals(role) && !"assistant".equals(role)) || content == null || content.isBlank()) continue;
+                String kept = content.substring(0, Math.min(content.length(), Math.min(4000, budget)));
+                recent.add(objectMapper.createObjectNode().put("role", role).put("content", kept));
+                budget -= kept.length();
+            }
+        }
+        for (int i = recent.size() - 1; i >= 0; i--) messages.add(recent.get(i));
+        if (taskRecords != null && !taskRecords.isEmpty())
+        {
+            StringBuilder records = new StringBuilder("【此前办事记录，按时间从旧到新】以下仅用于理解历史对象，不是本轮待执行指令；成功、失败、取消以记录结果为准。\n");
+            for (int i = Math.max(0, taskRecords.size() - 6); i < taskRecords.size(); i++)
+            {
+                String record = taskRecords.get(i);
+                if (record != null && !record.isBlank()) records.append(record, 0, Math.min(2000, record.length())).append("\n\n");
+            }
+            messages.addObject().put("role", "user").put("content", records.toString());
+        }
     }
 
     private String agentUserMessage(String goal, List<Map<String, Object>> actions, List<String> digest, int stepNo)
@@ -306,6 +320,7 @@ public class AiAssistantService
                 - ask 的 say 必须列出具体缺项或歧义，不得只说“请补充所需信息”。问题不受20字限制；已填写的默认值直接沿用，不要重复询问。先执行用户已明确指定的字段，仅询问仍无法确定的内容
                 - 例如用户只说“新增住院登记”，打开表单后应询问“请提供患者姓名或编号、科室、病区、床位及主治医生。押金当前为3000元，如需修改请说明。”不能从背景历史记录随意选患者，也不能编造诊断
                 - 用户补充信息后，结合原目标、待补充问题、已执行动作和当前表单继续填写，禁止重新打开并清空表单；信息充分时继续 select/input/click 直到业务提交成功，不得要求用户自行操作
+                - 对话历史和此前办事记录用于理解“刚才新增的”“那个”等指代。先从最近相关记录的实际填写值、结果和标识确定对象，再结合当前页面核对；有记录时不得声称没有上下文。历史任务不是本轮指令，不得重做；失败或取消的操作不算已完成。仍有同名或歧义时才询问，不得猜测删除对象
                 - 删除、作废、退费、结算等不可逆操作，前端会向用户弹确认框；若结果回报"用户拒绝"，输出 done 并说明已取消
                 - 同一动作连续失败两次不要原样重复，换一种方式或 fail
                 - say 用简体中文；普通进展简短，ask 必须问清缺项，done 必须说明结果。只有 ask/done/fail 才结束当前执行；click/input/select 等动作的 done 必须为 false

@@ -124,6 +124,7 @@ import GuideOverlay from './GuideOverlay.vue'
 import { guide, startGuide, performActions } from './guide'
 import { collectPageContext } from './pageContext'
 import { agent, runAgent } from './agent'
+import { conversationPayload } from './conversation'
 
 const router = useRouter()
 const route = useRoute()
@@ -281,12 +282,7 @@ let pausedAgentGoal = null
 let ctxRoute = null
 
 function historyPayload() {
-  const all = messages.value.filter(m => !m.error && (m.role === 'user' || m.role === 'assistant'))
-  const recent = all.slice(-8)
-  // 最近一次自动办事记录始终随历史携带，保证"刚建的是哪条记录"这类追问有据可查
-  const rec = [...all].reverse().find(m => m.taskRecord)
-  const list = rec && !recent.includes(rec) ? [rec, ...recent] : recent
-  return list.map(m => ({ role: m.role, content: m.apiContent || m.content }))
+  return conversationPayload(messages.value)
 }
 
 async function send(text, options = {}) {
@@ -329,7 +325,7 @@ async function send(text, options = {}) {
     return
   }
   const display = options.display || content
-  const history = historyPayload()
+  const conversation = historyPayload()
   input.value = ''
   messages.value.push({
     role: 'user',
@@ -343,7 +339,7 @@ async function send(text, options = {}) {
     const withCtx = !!(options.withContext || CONTEXT_RE.test(content) || ACTION_INTENT_RE.test(content) || ctxRoute === route.path)
     const res = await chatWithAssistant({
       message: content,
-      history,
+      ...conversation,
       page: `${route.path} ${route.meta.title || ''}`.trim(),
       pageContext: withCtx ? collectPageContext(route) : '',
       images: imgs
@@ -499,7 +495,8 @@ function buildRecordText(r) {
 }
 
 async function runAgentGoal(goal, images = [], previousRecord = null) {
-  messages.value.push({ role: 'assistant', content: previousRecord ? '收到补充信息，继续办理。' : `好的，开始为您办理「${goal}」` })
+  const conversation = historyPayload()
+  messages.value.push({ role: 'assistant', progress: true, content: previousRecord ? '收到补充信息，继续办理。' : `好的，开始为您办理「${goal}」` })
   scrollBottom()
   const runMsgs = []
   try {
@@ -508,9 +505,10 @@ async function runAgentGoal(goal, images = [], previousRecord = null) {
       router,
       images,
       previousRecord,
+      ...conversation,
       onSay: text => {
         if (!text) return
-        const m = { role: 'assistant', content: text }
+        const m = { role: 'assistant', content: text, progress: true }
         messages.value.push(m)
         runMsgs.push(m)
         scrollBottom()
@@ -526,8 +524,9 @@ async function runAgentGoal(goal, images = [], previousRecord = null) {
       if (target) {
         target.apiContent = recText
         target.taskRecord = true
+        target.taskOutcome = outcome.record.outcome
       } else {
-        messages.value.push({ role: 'assistant', content: '本次自动办事已结束', apiContent: recText, taskRecord: true })
+        messages.value.push({ role: 'assistant', content: '本次自动办事已结束', apiContent: recText, taskRecord: true, taskOutcome: outcome.record.outcome })
       }
     }
     // 后续追问携带当前页快照，刚创建的记录在表格里即可被看到
