@@ -1,9 +1,11 @@
 package com.ruoyi.his.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ruoyi.common.core.domain.BaseEntity;
 import java.util.Date;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ruoyi.common.annotation.Excel;
+import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
  * 检验单对象 his_lab_test
@@ -16,18 +18,22 @@ public class LabTest extends BaseEntity
     private Long testId;
 
     /** 检验单号 */
+    @Excel(name = "检验单号")
     private String testNo;
 
     /** 患者 */
     private Long patientId;
 
     /** 患者姓名 */
+    @Excel(name = "患者姓名")
     private String patientName;
 
     /** 性别 */
+    @Excel(name = "性别", dictType = "sys_user_sex")
     private String gender;
 
     /** 年龄 */
+    @Excel(name = "年龄")
     private Integer age;
 
     /** 门诊就诊ID */
@@ -40,33 +46,42 @@ public class LabTest extends BaseEntity
     private Long doctorId;
 
     /** 申请医生 */
+    @Excel(name = "申请医生")
     private String doctorName;
 
     /** 检验项目 */
+    @Excel(name = "检验项目")
     private String testItem;
 
     /** 标本类型 */
+    @Excel(name = "标本类型", dictType = "his_sample_type")
     private String sampleType;
 
     /** 状态 */
+    @Excel(name = "状态", dictType = "his_lab_status")
     private String status;
 
     /** 申请时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "申请时间", width = 20, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date applyTime;
 
     /** 采样时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "采样时间", width = 20, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date sampleTime;
 
     /** 报告时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "报告时间", width = 20, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date reportTime;
 
     /** 检验结论 */
+    @Excel(name = "检验结论")
     private String resultSummary;
 
     /** 报告人 */
+    @Excel(name = "报告人")
     private String reportBy;
 
     /** 检验结果明细 */

@@ -1,9 +1,11 @@
 package com.ruoyi.his.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ruoyi.common.core.domain.BaseEntity;
 import java.math.BigDecimal;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ruoyi.common.annotation.Excel;
+import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
  * 护理记录对象 his_nursing
@@ -22,34 +24,44 @@ public class Nursing extends BaseEntity
     private Long patientId;
 
     /** 患者姓名 */
+    @Excel(name = "患者姓名")
     private String patientName;
 
     /** 护士 */
+    @Excel(name = "护士")
     private String nurseName;
 
     /** 记录时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "记录时间", width = 20, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date recordTime;
 
     /** 体温(℃) */
+    @Excel(name = "体温(℃)")
     private BigDecimal temperature;
 
     /** 脉搏(次/分) */
+    @Excel(name = "脉搏(次/分)")
     private Integer pulse;
 
     /** 呼吸(次/分) */
+    @Excel(name = "呼吸(次/分)")
     private Integer breath;
 
     /** 收缩压(mmHg) */
+    @Excel(name = "收缩压(mmHg)")
     private Integer bpHigh;
 
     /** 舒张压(mmHg) */
+    @Excel(name = "舒张压(mmHg)")
     private Integer bpLow;
 
     /** 血氧(%) */
+    @Excel(name = "血氧(%)")
     private Integer spo2;
 
     /** 护理内容 */
+    @Excel(name = "护理内容")
     private String content;
 
 

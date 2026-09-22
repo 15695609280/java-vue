@@ -149,3 +149,12 @@ xss:
   excludes: /system/notice
   # 匹配链接
   urlPatterns: /system/*,/monitor/*,/tool/*
+
+# AI 助手（大模型）配置：OpenAI 兼容接口，key 可用环境变量 AI_API_KEY 覆盖
+ai:
+  base-url: https://api.deepseek.com
+  api-key: ${AI_API_KEY:sk-fa8a1f821fbf4edb89fc1d05dd91c946}
+  model: deepseek-flash
+  # 带图问答使用的视觉模型；留空则复用 model
+  vision-model:
+  timeout: 60

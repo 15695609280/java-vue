@@ -85,6 +85,7 @@ import com.ruoyi.common.utils.file.FileTypeUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.common.utils.file.ImageUtils;
 import com.ruoyi.common.utils.reflect.ReflectUtils;
+import com.ruoyi.his.domain.Department;
 
 /**
  * Excel相关处理
@@ -206,9 +207,9 @@ public class ExcelUtil<T>
      */
     public String[] excludeFields;
 
-    public ExcelUtil(Class<T> clazz)
+    public ExcelUtil(Department department)
     {
-        this.clazz = clazz;
+        this.clazz = department;
     }
 
     /**

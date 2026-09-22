@@ -1,9 +1,11 @@
 package com.ruoyi.his.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ruoyi.common.core.domain.BaseEntity;
 import java.math.BigDecimal;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ruoyi.common.annotation.Excel;
+import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
  * 费用单对象 his_charge
@@ -16,46 +18,58 @@ public class Charge extends BaseEntity
     private Long chargeId;
 
     /** 单据号 */
+    @Excel(name = "单据号")
     private String chargeNo;
 
     /** 患者 */
     private Long patientId;
 
     /** 患者姓名 */
+    @Excel(name = "患者姓名")
     private String patientName;
 
     /** 就诊卡号 */
+    @Excel(name = "就诊卡号")
     private String patientNo;
 
     /** 费用类型 */
+    @Excel(name = "费用类型", dictType = "his_charge_type")
     private String sourceType;
 
     /** 来源单据ID */
     private Long sourceId;
 
     /** 项目名称 */
+    @Excel(name = "项目名称")
     private String itemName;
 
     /** 单价(元) */
+    @Excel(name = "单价(元)")
     private BigDecimal price;
 
     /** 数量 */
+    @Excel(name = "数量")
     private Integer quantity;
 
     /** 金额(元) */
+    @Excel(name = "金额(元)")
     private BigDecimal amount;
 
     /** 收费状态 */
+    @Excel(name = "收费状态", dictType = "his_charge_status")
     private String chargeStatus;
 
     /** 支付方式 */
+    @Excel(name = "支付方式", dictType = "his_pay_type")
     private String payType;
 
     /** 结算时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "结算时间", width = 20, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date settleTime;
 
     /** 收费员 */
+    @Excel(name = "收费员")
     private String operator;
 
     /** 批量结算IDS(结算接口用) */

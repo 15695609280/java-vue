@@ -1,8 +1,10 @@
 package com.ruoyi.his.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ruoyi.common.core.domain.BaseEntity;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ruoyi.common.annotation.Excel;
+import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
  * 检查单对象 his_exam
@@ -15,47 +17,59 @@ public class Exam extends BaseEntity
     private Long examId;
 
     /** 检查单号 */
+    @Excel(name = "检查单号")
     private String examNo;
 
     /** 患者 */
     private Long patientId;
 
     /** 患者姓名 */
+    @Excel(name = "患者姓名")
     private String patientName;
 
     /** 申请医生 */
     private Long doctorId;
 
     /** 申请医生 */
+    @Excel(name = "申请医生")
     private String doctorName;
 
     /** 检查类型 */
+    @Excel(name = "检查类型", dictType = "his_exam_type")
     private String examType;
 
     /** 检查部位 */
+    @Excel(name = "检查部位")
     private String bodyPart;
 
     /** 检查目的 */
+    @Excel(name = "检查目的")
     private String purpose;
 
     /** 状态 */
+    @Excel(name = "状态", dictType = "his_exam_status")
     private String status;
 
     /** 申请时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "申请时间", width = 20, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date applyTime;
 
     /** 报告时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "报告时间", width = 20, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date reportTime;
 
     /** 影像所见 */
+    @Excel(name = "影像所见")
     private String finding;
 
     /** 诊断结论 */
+    @Excel(name = "诊断结论")
     private String conclusion;
 
     /** 报告人 */
+    @Excel(name = "报告人")
     private String reportBy;
 
     /** 检查费(申请时联动生成账单用，非持久) */

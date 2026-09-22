@@ -1,8 +1,10 @@
 package com.ruoyi.his.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ruoyi.common.core.domain.BaseEntity;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ruoyi.common.annotation.Excel;
+import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
  * 医嘱对象 his_medical_order
@@ -18,54 +20,67 @@ public class MedicalOrder extends BaseEntity
     private Long admId;
 
     /** 住院号 */
+    @Excel(name = "住院号")
     private String admNo;
 
     /** 患者 */
     private Long patientId;
 
     /** 患者姓名 */
+    @Excel(name = "患者姓名")
     private String patientName;
 
     /** 开立医生 */
     private Long doctorId;
 
     /** 开立医生 */
+    @Excel(name = "开立医生")
     private String doctorName;
 
     /** 医嘱类型 */
+    @Excel(name = "医嘱类型", dictType = "his_order_type")
     private String orderType;
 
     /** 医嘱内容 */
+    @Excel(name = "医嘱内容")
     private String content;
 
     /** 关联药品 */
     private Long drugId;
 
     /** 关联药品 */
+    @Excel(name = "关联药品")
     private String drugName;
 
     /** 单次剂量 */
+    @Excel(name = "单次剂量")
     private String dose;
 
     /** 频次 */
+    @Excel(name = "频次")
     private String frequency;
 
     /** 开始时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "开始时间", width = 20, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date startTime;
 
     /** 停止时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "停止时间", width = 20, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date endTime;
 
     /** 状态 */
+    @Excel(name = "状态", dictType = "his_order_status")
     private String orderStatus;
 
     /** 执行护士 */
+    @Excel(name = "执行护士")
     private String execBy;
 
     /** 执行时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "执行时间", width = 20, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date execTime;
 
 

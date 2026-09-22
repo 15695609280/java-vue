@@ -1,11 +1,12 @@
 package com.ruoyi.his.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ruoyi.common.core.domain.BaseEntity;
-import com.ruoyi.his.domain.PrescriptionItem;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ruoyi.common.annotation.Excel;
+import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
  * 处方对象 his_prescription
@@ -18,6 +19,7 @@ public class Prescription extends BaseEntity
     private Long rxId;
 
     /** 处方号 */
+    @Excel(name = "处方号")
     private String rxNo;
 
     /** 就诊ID */
@@ -27,28 +29,35 @@ public class Prescription extends BaseEntity
     private Long patientId;
 
     /** 患者姓名 */
+    @Excel(name = "患者姓名")
     private String patientName;
 
     /** 医生 */
     private Long doctorId;
 
     /** 医生 */
+    @Excel(name = "医生")
     private String doctorName;
 
     /** 处方类型 */
+    @Excel(name = "处方类型", dictType = "his_rx_type")
     private String rxType;
 
     /** 合计金额(元) */
+    @Excel(name = "合计金额(元)")
     private BigDecimal totalAmount;
 
     /** 状态 */
+    @Excel(name = "状态", dictType = "his_rx_status")
     private String status;
 
     /** 发药药师 */
+    @Excel(name = "发药药师")
     private String dispenseBy;
 
     /** 发药时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "发药时间", width = 20, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date dispenseTime;
 
     /** 处方明细 */

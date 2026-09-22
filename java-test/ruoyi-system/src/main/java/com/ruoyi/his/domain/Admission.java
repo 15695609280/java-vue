@@ -1,9 +1,11 @@
 package com.ruoyi.his.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ruoyi.common.core.domain.BaseEntity;
 import java.math.BigDecimal;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ruoyi.common.annotation.Excel;
+import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
  * 住院登记对象 his_admission
@@ -16,59 +18,72 @@ public class Admission extends BaseEntity
     private Long admId;
 
     /** 住院号 */
+    @Excel(name = "住院号")
     private String admNo;
 
     /** 患者 */
     private Long patientId;
 
     /** 患者姓名 */
+    @Excel(name = "患者姓名")
     private String patientName;
 
     /** 性别 */
+    @Excel(name = "性别", dictType = "sys_user_sex")
     private String gender;
 
     /** 年龄 */
+    @Excel(name = "年龄")
     private Integer age;
 
     /** 科室 */
     private Long deptId;
 
     /** 科室 */
+    @Excel(name = "科室")
     private String deptName;
 
     /** 病区 */
     private Long wardId;
 
     /** 病区 */
+    @Excel(name = "病区")
     private String wardName;
 
     /** 床位 */
     private Long bedId;
 
     /** 床号 */
+    @Excel(name = "床号")
     private String bedNo;
 
     /** 主治医生 */
     private Long doctorId;
 
     /** 主治医生 */
+    @Excel(name = "主治医生")
     private String doctorName;
 
     /** 入院时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "入院时间", width = 20, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date inDate;
 
     /** 出院时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "出院时间", width = 20, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date outDate;
 
     /** 预缴押金(元) */
+    @Excel(name = "预缴押金(元)")
     private BigDecimal deposit;
 
     /** 住院状态 */
+    @Excel(name = "住院状态", dictType = "his_adm_status")
     private String admStatus;
 
     /** 入院诊断 */
+    @Excel(name = "入院诊断")
     private String diagnosisIn;
 
 

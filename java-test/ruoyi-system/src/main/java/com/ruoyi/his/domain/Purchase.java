@@ -1,10 +1,12 @@
 package com.ruoyi.his.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ruoyi.common.core.domain.BaseEntity;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ruoyi.common.annotation.Excel;
+import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
  * 采购单对象 his_purchase
@@ -17,23 +19,32 @@ public class Purchase extends BaseEntity
     private Long purchaseId;
 
     /** 采购单号 */
+    @Excel(name = "采购单号")
     private String purchaseNo;
 
     /** 供应商 */
     private Long supplierId;
 
     /** 供应商 */
+    @Excel(name = "供应商")
     private String supplierName;
 
     /** 合计金额(元) */
+    @Excel(name = "合计金额(元)")
     private BigDecimal totalAmount;
 
     /** 状态 */
+    @Excel(name = "状态", dictType = "his_purchase_status")
     private String status;
 
     /** 入库时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "入库时间", width = 20, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date inTime;
+
+    /** 创建时间（映射父类 createTime，仅供导出） */
+    @Excel(name = "创建时间", width = 20, dateFormat = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
 
     /** 采购明细 */
     private List<PurchaseItem> itemList;

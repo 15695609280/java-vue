@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.his.mapper.DepartmentMapper">
+    <resultMap type="com.ruoyi.his.domain.Department" id="DepartmentResult">
+      <id property="deptId" column="dept_id" />
+        <result property="parentId" column="parent_id" />
+        <result property="deptName" column="dept_name" />
+        <result property="deptCode" column="dept_code" />
+        <result property="deptType" column="dept_type" />
+        <result property="location" column="location" />
+        <result property="phone" column="phone" />
+        <result property="intro" column="intro" />
+        <result property="orderNum" column="order_num" />
+        <result property="status" column="status" />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"  column="create_time"  />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"  column="update_time"  />
+        <result property="remark"      column="remark"       />
+
+    </resultMap>
+   
+   <sql id="selectDepartmentVo"> 
+   select t.dept_id, t.parent_id, t.dept_name, t.dept_code, t.dept_type, t.location, t.phone, t.intro, t.order_num, t.status
+   from his_department t
+   </sql>
+
+    <select id = "selectDepartmentList" parameterType="com.ruoyi.his.domain.Department" resultMap="DepartmentResult">
+     <include refid="selectDepartmentVo"></include>
+     <where>
+        <if test = "deptName!=null and deptName!=''">AND t.dept_name like concat('%',#{deptName},'%')</if>
+        order by t.order_num,t.dept_id
+     </where>
+    </select>
+
+    <select id ="selectDepartmentByDeptId" parameterType="Long" resultMap="DepartmentResult">
+      <include refid= "selectDepartmentVo"></include>
+      where t.dept_id = #{deptId}
+    </select>
+
+    <insert id = "insertDepartment" parameterType="com.ruoyi.his.domain.Department" resultMap="DepartmentResult">
+    insert into his_department
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+    <if test="parentId != null">parent_id,</if>
+            <if test="deptName != null and deptName != ''">dept_name,</if>
+            <if test="deptCode != null and deptCode != ''">dept_code,</if>
+            <if test="deptType != null and deptType != ''">dept_type,</if>
+            <if test="location != null and location != ''">location,</if>
+            <if test="phone != null and phone != ''">phone,</if>
+            <if test="intro != null and intro != ''">intro,</if>
+            <if test="orderNum != null">order_num,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>  
+    </trim>
+
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="parentId != null">#{parentId},</if>
+            <if test="deptName != null and deptName != ''">#{deptName},</if>
+            <if test="deptCode != null and deptCode != ''">#{deptCode},</if>
+            <if test="deptType != null and deptType != ''">#{deptType},</if>
+            <if test="location != null and location != ''">#{location},</if>
+            <if test="phone != null and phone != ''">#{phone},</if>
+            <if test="intro != null and intro != ''">#{intro},</if>
+            <if test="orderNum != null">#{orderNum},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+
+    </trim>
+    
+    </insert>
+
+    <update id="updateDepartment" parameterType="com.ruoyi.his.domain.Department" resultMap="DepartmentResult">
+    update his_department
+    <trim prefix="set" suffix=",">
+   <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="deptName != null and deptName != ''">dept_name = #{deptName},</if>
+            <if test="deptCode != null and deptCode != ''">dept_code = #{deptCode},</if>
+            <if test="deptType != null and deptType != ''">dept_type = #{deptType},</if>
+            <if test="location != null and location != ''">location = #{location},</if>
+            <if test="phone != null and phone != ''">phone = #{phone},</if>
+            <if test="intro != null and intro != ''">intro = #{intro},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+
+    </trim>
+    where dept_id = #{deptId}
+    
+    </update>
+
+
+    <delete id="deleteDepartmentByDeptId" parameterType="Long">
+    delete from his_department where dept_id=#{deptId}
+    
+    </delete>
+
+    <delete id="deleteDepartmentByDeptIds" parameterType="String">
+      delete from his_department where dept_id in 
+      <foreach item="deptId" collection="array" open="(" separator="," close=")">
+       #{deptId}
+      </foreach>
+    </delete>
+
+
+
+
+
+</mapper>

@@ -1,5 +1,8 @@
 package com.ruoyi.his.domain;
 
+import java.util.Date;
+
+import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
@@ -13,34 +16,50 @@ public class StockRecord extends BaseEntity
     private Long recordId;
 
     /** 单据号 */
+    @Excel(name = "单据号")
     private String recordNo;
 
     /** 变动类型 */
+    @Excel(name = "变动类型", dictType = "his_stock_type")
     private String recordType;
 
     /** 药品 */
     private Long drugId;
 
     /** 药品名称 */
+    @Excel(name = "药品")
     private String drugName;
 
     /** 规格 */
+    @Excel(name = "规格")
     private String specification;
 
     /** 变动数量 */
+    @Excel(name = "变动数量")
     private Integer quantity;
 
     /** 变动前库存 */
+    @Excel(name = "变动前库存")
     private Integer beforeStock;
 
     /** 变动后库存 */
+    @Excel(name = "变动后库存")
     private Integer afterStock;
 
     /** 来源单据ID */
     private Long sourceId;
 
     /** 经办人 */
+    @Excel(name = "经办人")
     private String operator;
+
+    /** 时间（映射父类 createTime，仅供导出） */
+    @Excel(name = "时间", width = 20, dateFormat = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
+    /** 备注（映射父类 remark，仅供导出） */
+    @Excel(name = "备注")
+    private String remark;
 
 
     public void setRecordId(Long recordId) { this.recordId = recordId; }

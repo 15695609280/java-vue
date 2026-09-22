@@ -1,8 +1,10 @@
 package com.ruoyi.his.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ruoyi.common.core.domain.BaseEntity;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ruoyi.common.annotation.Excel;
+import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
  * 就诊记录对象 his_visit
@@ -15,6 +17,7 @@ public class Visit extends BaseEntity
     private Long visitId;
 
     /** 就诊编号 */
+    @Excel(name = "就诊编号")
     private String visitNo;
 
     /** 挂号ID */
@@ -24,40 +27,50 @@ public class Visit extends BaseEntity
     private Long patientId;
 
     /** 患者姓名 */
+    @Excel(name = "患者姓名")
     private String patientName;
 
     /** 医生 */
     private Long doctorId;
 
     /** 医生 */
+    @Excel(name = "医生")
     private String doctorName;
 
     /** 科室 */
     private Long deptId;
 
     /** 科室 */
+    @Excel(name = "科室")
     private String deptName;
 
     /** 就诊时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "就诊时间", width = 20, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date visitTime;
 
     /** 主诉 */
+    @Excel(name = "主诉")
     private String chiefComplaint;
 
     /** 现病史 */
+    @Excel(name = "现病史")
     private String presentIllness;
 
     /** 既往史 */
+    @Excel(name = "既往史")
     private String pastIllness;
 
     /** 诊断结果 */
+    @Excel(name = "诊断结果")
     private String diagnosis;
 
     /** 处理意见 */
+    @Excel(name = "处理意见")
     private String treatment;
 
     /** 就诊状态 */
+    @Excel(name = "就诊状态", dictType = "his_visit_status")
     private String status;
 
 

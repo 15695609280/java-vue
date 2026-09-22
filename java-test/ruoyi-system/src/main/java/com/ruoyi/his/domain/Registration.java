@@ -1,9 +1,11 @@
 package com.ruoyi.his.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ruoyi.common.core.domain.BaseEntity;
 import java.math.BigDecimal;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ruoyi.common.annotation.Excel;
+import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
  * 挂号对象 his_registration
@@ -16,33 +18,40 @@ public class Registration extends BaseEntity
     private Long regId;
 
     /** 挂号单号 */
+    @Excel(name = "挂号单号")
     private String regNo;
 
     /** 患者 */
     private Long patientId;
 
     /** 患者姓名 */
+    @Excel(name = "患者姓名")
     private String patientName;
 
     /** 就诊卡号 */
+    @Excel(name = "就诊卡号")
     private String patientNo;
 
     /** 性别 */
+    @Excel(name = "性别", dictType = "sys_user_sex")
     private String gender;
 
     /** 年龄 */
+    @Excel(name = "年龄")
     private Integer age;
 
     /** 科室 */
     private Long deptId;
 
     /** 科室 */
+    @Excel(name = "科室")
     private String deptName;
 
     /** 医生 */
     private Long doctorId;
 
     /** 医生 */
+    @Excel(name = "医生")
     private String doctorName;
 
     /** 排班ID */
@@ -50,21 +59,27 @@ public class Registration extends BaseEntity
 
     /** 就诊日期 */
     @JsonFormat(pattern = "yyyy-MM-dd")
+    @Excel(name = "就诊日期", width = 15, dateFormat = "yyyy-MM-dd")
     private Date regDate;
 
     /** 时段 */
+    @Excel(name = "时段", dictType = "his_time_slot")
     private String timeSlot;
 
     /** 排队号 */
+    @Excel(name = "排队号")
     private Integer queueNo;
 
     /** 挂号费(元) */
+    @Excel(name = "挂号费(元)")
     private BigDecimal regFee;
 
     /** 状态 */
+    @Excel(name = "就诊状态", dictType = "his_reg_status")
     private String visitStatus;
 
     /** 缴费状态 */
+    @Excel(name = "缴费状态", readConverterExp = "0=未缴,1=已缴")
     private String payStatus;
 
 

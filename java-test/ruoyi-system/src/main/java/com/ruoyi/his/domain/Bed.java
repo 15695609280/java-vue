@@ -1,7 +1,9 @@
 package com.ruoyi.his.domain;
 
-import com.ruoyi.common.core.domain.BaseEntity;
 import java.math.BigDecimal;
+
+import com.ruoyi.common.annotation.Excel;
+import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
  * 床位对象 his_bed
@@ -17,21 +19,27 @@ public class Bed extends BaseEntity
     private Long wardId;
 
     /** 所属病区 */
+    @Excel(name = "所属病区")
     private String wardName;
 
     /** 床号 */
+    @Excel(name = "床号")
     private String bedNo;
 
     /** 床位类型 */
+    @Excel(name = "床位类型", dictType = "his_bed_type")
     private String bedType;
 
     /** 每日价格(元) */
+    @Excel(name = "每日价格(元)")
     private BigDecimal pricePerDay;
 
     /** 床位状态 */
+    @Excel(name = "床位状态", dictType = "his_bed_status")
     private String status;
 
     /** 在住患者 */
+    @Excel(name = "在住患者")
     private String patientName;
 
 
