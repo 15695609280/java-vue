@@ -1,5 +1,5 @@
 import { topDialog, selectedText } from './controls'
-import { visible } from './guide'
+import { visible, controlName } from './guide'
 
 /**
  * 采集当前页面的 DOM 快照，供 AI 结合真实数据做页面分析。
@@ -98,7 +98,7 @@ function readButtons(scope) {
   const out = []
   for (const b of scope.querySelectorAll('.el-button, button')) {
     if (!isVisible(b)) continue
-    const x = t(b)
+    const x = controlName(b)
     if (x && x.length <= 12 && !out.includes(x)) out.push(x)
     if (out.length >= MAX_BUTTONS) break
   }
@@ -131,6 +131,10 @@ export function collectPageContext(route) {
       if (stats.length >= 16) break
     }
     if (stats.length) lines.push('统计/指标：' + stats.join('；'))
+
+    const cards = Array.from(root.querySelectorAll('.dept-card')).filter(isVisible).slice(0, MAX_ROWS)
+    if (cards.length) lines.push('科室列表：' + cards.map(card =>
+      `${t(card.querySelector('.dname'))}（编码：${t(card.querySelector('.code'))}）`).join('；'))
 
     // 表单字段与已填条件
     const { filled, labels } = readForm(root)
@@ -197,7 +201,7 @@ export function collectPageContext(route) {
     // 打开的弹窗 / 抽屉
     const dlg = topDialog()
     if (dlg) {
-      const dTitle = t(dlg.querySelector('.el-dialog__title, .el-drawer__title, .el-drawer__header'))
+      const dTitle = t(dlg.querySelector('.el-dialog__title, .el-drawer__title, .el-drawer__header, .el-message-box__title'))
       lines.push(`打开的弹窗：「${dTitle || '未命名'}」`)
       const dForm = readForm(dlg)
       if (dForm.filled.length) lines.push('弹窗表单已填：' + dForm.filled.join('；'))
@@ -215,6 +219,7 @@ export function collectPageContext(route) {
       }
       const dBtns = readButtons(dlg)
       if (dBtns.length) lines.push('弹窗按钮：' + dBtns.join('、'))
+      if (dBtns.includes('关闭')) lines.push('关闭当前弹窗：click target="关闭"（右上角关闭图标）；关闭后重新观察页面，再执行后续操作。')
     }
 
     const notices = Array.from(document.querySelectorAll('.el-message, .el-notification')).filter(isVisible).map(t)

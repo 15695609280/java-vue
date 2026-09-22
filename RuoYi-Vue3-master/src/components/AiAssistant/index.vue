@@ -267,7 +267,7 @@ const CONTEXT_RE = /本页|当前页|这个页面|这页|该页面|页面里|页
 // 用户要求助手直接操作页面控件（"点击中成药""切换到库存预警"）
 const ACTION_INTENT_RE = /^\s*(帮我|请|给我|帮忙|麻烦)?\s*(点击|点一下|点下|按下|切换到|切换成|切换至|转到|打开|关闭|勾选|选中|筛选|刷新)/
 // 任务型请求（"帮我新建采购单""帮我给患者挂号"）→ 直接交给 Agent 代办
-const AGENT_INTENT_RE = /(帮我|帮忙|麻烦|给我|请).{0,10}(新建|创建|添加|录入|办理|挂号|开方|开药|开检查|开检验|提交|申请|登记|填写|排班|结算|收费|发药|采购|入库|出库|出院|建档|审核)|^\s*(新建|创建|添加|录入|办理|挂号|提交|申请|登记|填写)/
+const AGENT_INTENT_RE = /(帮我|帮忙|麻烦|给我|请).{0,10}(新建|创建|添加|录入|办理|挂号|开方|开药|开检查|开检验|提交|申请|登记|填写|排班|结算|收费|发药|采购|入库|出库|出院|建档|审核|删除|删掉|移除)|^\s*(新建|创建|添加|录入|办理|挂号|提交|申请|登记|填写|删除|删掉|移除)|(删除|删掉|删了|移除)(刚|那个|这个|这条|那条|上一|它|掉|一下)|(把|将).{1,24}(删除|删掉|删了|移除)/
 // 多步任务信号（"点一下这些，然后统计分析"）：连续动作交给 Agent 分步执行
 const MULTI_STEP_RE = /然后|接着|随后|顺便|并且|再.{0,4}(统计|分析|汇总|检查|看看|筛选|对比)/
 // 但带"怎么/如何"等请教字眼时，仍按求指导处理
@@ -478,7 +478,7 @@ function buildRecordText(r) {
   if (r.finalSay) lines.push(`结语：${r.finalSay}`)
   const stepLines = r.steps.map((s, i) => {
     const v = s.value ? `=${s.value}` : ''
-    const res = ['true', 'already', 'opened', 'submitted'].includes(s.ok) ? '成功' : s.ok === 'denied' ? '用户拒绝' : '失败'
+    const res = ['true', 'already', 'opened', 'closed', 'submitted'].includes(s.ok) ? '成功' : s.ok === 'denied' ? '用户拒绝' : '失败'
     return `${i + 1}.${s.type}「${s.target}」${v}→${res}`
   })
   const shown = stepLines.length > 30
@@ -496,6 +496,8 @@ function buildRecordText(r) {
 
 async function runAgentGoal(goal, images = [], previousRecord = null) {
   const conversation = historyPayload()
+  // 结构化办事记录（含每步填写值）：让"删除刚创建的"能直接定位到具体记录
+  const records = messages.value.filter(m => m.taskRecordData).map(m => m.taskRecordData).slice(-6)
   messages.value.push({ role: 'assistant', progress: true, content: previousRecord ? '收到补充信息，继续办理。' : `好的，开始为您办理「${goal}」` })
   scrollBottom()
   const runMsgs = []
@@ -505,6 +507,7 @@ async function runAgentGoal(goal, images = [], previousRecord = null) {
       router,
       images,
       previousRecord,
+      records,
       ...conversation,
       onSay: text => {
         if (!text) return
@@ -525,8 +528,9 @@ async function runAgentGoal(goal, images = [], previousRecord = null) {
         target.apiContent = recText
         target.taskRecord = true
         target.taskOutcome = outcome.record.outcome
+        target.taskRecordData = outcome.record
       } else {
-        messages.value.push({ role: 'assistant', content: '本次自动办事已结束', apiContent: recText, taskRecord: true, taskOutcome: outcome.record.outcome })
+        messages.value.push({ role: 'assistant', content: '本次自动办事已结束', apiContent: recText, taskRecord: true, taskOutcome: outcome.record.outcome, taskRecordData: outcome.record })
       }
     }
     // 后续追问携带当前页快照，刚创建的记录在表格里即可被看到

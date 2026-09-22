@@ -167,9 +167,11 @@ public class AiAssistantController extends BaseController
         {
             stepNo = n.intValue();
         }
+        // 前端解析出的指代提示（"刚创建的"指哪条记录），帮助模型直接定位对象
+        String hints = body.get("hints") instanceof String h ? h.substring(0, Math.min(1000, h.length())) : "";
 
         Map<String, Object> result = aiAssistantService.agentStep(goal, page, pageContext, actions, images, digest, stepNo,
-                readHistory(body), readTaskRecords(body));
+                readHistory(body), readTaskRecords(body), hints);
         AjaxResult ajax = AjaxResult.success();
         ajax.put("say", result.get("say"));
         ajax.put("action", result.get("action"));

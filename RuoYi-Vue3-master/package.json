@@ -17,6 +17,8 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "2.3.2",
+    "@langchain/core": "1.2.12",
+    "@langchain/langgraph": "1.4.17",
     "@vueup/vue-quill": "1.2.0",
     "@vueuse/core": "14.1.0",
     "axios": "1.13.2",

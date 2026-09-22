@@ -61,6 +61,19 @@ export function visible(el) {
   return style.display !== 'none' && style.visibility !== 'hidden'
 }
 
+export const CLOSE_CONTROL = '.el-dialog__headerbtn,.el-drawer__close-btn,.el-message-box__headerbtn'
+
+/** Icon buttons need the same accessible name in snapshots and execution. */
+export function controlName(el) {
+  if (el.matches(CLOSE_CONTROL)) return '关闭'
+  const text = (el.innerText || el.textContent || '').trim()
+  if (text) return text
+  const label = el.getAttribute('aria-label') || el.getAttribute('title')
+  if (label) return label
+  return (el.getAttribute('aria-labelledby') || '').split(/\s+/)
+    .map(id => document.getElementById(id)?.textContent || '').join(' ').trim()
+}
+
 /** 在指定根节点内按文字查找最匹配的可交互元素；root 支持选择器字符串或元素 */
 export function findByText(text, rootSel) {
   const needle = norm(text)
@@ -72,8 +85,8 @@ export function findByText(text, rootSel) {
   for (const root of roots) {
     if (!root) continue
     for (const el of root.querySelectorAll(PAGE_SELECTORS.join(','))) {
-      if (!visible(el)) continue
-      const t = norm(el.innerText || el.textContent || '')
+      if (!visible(el) || el.closest('.ai-panel,.ai-bubble')) continue
+      const t = norm(controlName(el))
       if (!t || !t.includes(needle)) continue
       let score = t === needle ? 1000 : (needle.length / t.length) * 100
       if (el.matches(INTERACTIVE)) score += 300
@@ -343,9 +356,11 @@ export async function performActions(payload, routerInstance) {
     out.navigated = true
   }
 
+  const { topDialog, findDismissControl, isDismissControl } = await import('./controls')
   for (const s of payload.steps || []) {
     if (!s || !s.target) continue
-    const el = findByText(s.target, null)
+    const dialog = topDialog()
+    const el = findDismissControl(s.target, dialog) || findByText(s.target, dialog || '.app-main')
     if (!el) {
       out.results.push({ target: s.target, ok: false })
       continue
@@ -355,6 +370,11 @@ export async function performActions(payload, routerInstance) {
     flashEl(el)
     await sleep(380)
     el.click()
+    if (isDismissControl(el, dialog)) {
+      await until(() => !visible(dialog), 2500, 100)
+      out.results.push({ target: s.target, ok: !visible(dialog) })
+      continue
+    }
     await sleep(280)
     out.results.push({ target: s.target, ok: true })
   }

@@ -54,6 +54,10 @@ public class AiAssistantService
     @Value("${ai.timeout:60}")
     private int timeout;
 
+    /** Agent 单步决策的推理档位（low/medium/high）：越高越稳但越慢，默认 medium 兼顾速度 */
+    @Value("${ai.agent-reasoning:medium}")
+    private String agentReasoning;
+
     /**
      * 与 AI 助手对话
      *
@@ -94,10 +98,11 @@ public class AiAssistantService
      * @param images      首轮可携带截图（data:image/...），让模型看到用户所指内容
      * @param digest      更早动作的压缩摘要（长任务记忆，防重复操作）
      * @param stepNo      当前步数序号
-     * @return { say, action:{type,target,value}, done }
+     * @param hints       前端解析出的指代提示（如"刚创建的"对应的记录标识），可为空
+     * @return { say, action:{type,target,value,row}, done }
      */
     public Map<String, Object> agentStep(String goal, String page, String pageContext, List<Map<String, Object>> actions, List<String> images, List<String> digest, int stepNo,
-            List<Map<String, String>> history, List<String> taskRecords)
+            List<Map<String, String>> history, List<String> taskRecords, String hints)
     {
         checkConfig();
         try
@@ -108,10 +113,11 @@ public class AiAssistantService
             messages.addObject().put("role", "system").put("content", agentPrompt(page, pageContext));
             appendConversation(messages, history, taskRecords);
             ObjectNode userNode = messages.addObject().put("role", "user");
+            String userMessage = agentUserMessage(goal, actions, digest, stepNo, hints);
             if (hasImages)
             {
                 ArrayNode arr = userNode.putArray("content");
-                arr.addObject().put("type", "text").put("text", agentUserMessage(goal, actions, digest, stepNo));
+                arr.addObject().put("type", "text").put("text", userMessage);
                 for (String img : images)
                 {
                     arr.addObject().put("type", "image_url").putObject("image_url").put("url", img);
@@ -119,9 +125,10 @@ public class AiAssistantService
             }
             else
             {
-                userNode.put("content", agentUserMessage(goal, actions, digest, stepNo));
+                userNode.put("content", userMessage);
             }
-            return parseAgentAnswer(callUpstream(messages, useModel, hasImages, "high"));
+            String effort = agentReasoning == null || agentReasoning.isBlank() ? "medium" : agentReasoning.trim().toLowerCase();
+            return parseAgentAnswer(callUpstream(messages, useModel, hasImages, effort));
         }
         catch (ServiceException e)
         {
@@ -232,10 +239,14 @@ public class AiAssistantService
         }
     }
 
-    private String agentUserMessage(String goal, List<Map<String, Object>> actions, List<String> digest, int stepNo)
+    private String agentUserMessage(String goal, List<Map<String, Object>> actions, List<String> digest, int stepNo, String hints)
     {
         StringBuilder sb = new StringBuilder();
         sb.append("任务目标：").append(goal).append('\n');
+        if (hints != null && !hints.isBlank())
+        {
+            sb.append("【指代提示】").append(hints.trim()).append('\n');
+        }
         sb.append("当前进度：第 ").append(Math.max(stepNo, 1)).append(" 步\n");
         if (digest != null && !digest.isEmpty())
         {
@@ -256,6 +267,8 @@ public class AiAssistantService
                         : "submitted".equals(ok) ? "业务写入接口已返回成功；若目标已达成请立即输出 done，不得重复创建/提交"
                         : "submitted-open".equals(ok) ? "已点击但弹窗仍未关闭，可能有必填项未填或校验错误，请检查快照修正后再提交"
                         : "opened".equals(ok) ? "已打开弹窗/页面，继续下一步填写"
+                        : "missing-row".equals(ok) ? "指定的记录在当前页面不存在，未执行（见页面内容末尾的说明，改用存在的记录名称/编码）"
+                        : "ambiguous".equals(ok) ? "多条记录都有该按钮且无法确定是哪条，已向用户询问"
                         : ("true".equals(ok) ? "成功" : "失败（未找到或无法操作该控件）");
                 Object v = a.get("value");
                 String val = v == null || String.valueOf(v).isEmpty() ? "" : "=" + v;
@@ -287,11 +300,12 @@ public class AiAssistantService
                 工作方式：每轮你会收到【任务目标】【当前页面快照】【已执行动作及结果】，你只输出【一个】下一步动作；前端执行后会把新快照和新结果给你，如此循环直到目标完成。
 
                 【输出协议】严格输出 JSON，不得输出 markdown 代码块或任何多余文字：
-                {"say":"给用户看的进展或具体问题","action":{"type":"动作类型","target":"目标","value":"值"},"done":false}
+                {"say":"给用户看的进展或具体问题","action":{"type":"动作类型","target":"目标","value":"值","row":"记录标识(可选)"},"done":false}
 
                 【动作类型】
                 - navigate：跳转到菜单页面，target 填下方菜单表中的 path 值
                 - click：点击按钮/页签/链接/菜单项，target 为快照中真实可见的文字
+                  · 列表/卡片里每条记录都有的按钮（删除、编辑、详情等）必须用 row 指明是哪条记录，row 填快照中该记录的名称或编码，如 {"type":"click","target":"删除","row":"康复医学科"}；不带 row 的行级按钮无法执行
                 - input：向输入框/文本域填值，target 为表单项 label 或占位提示，value 为填写内容
                 - select：下拉框选择，target 为表单项 label，value 为选项文字
                 - check：勾选/取消复选框，target 为复选框文字，value 为 true/false
@@ -321,7 +335,10 @@ public class AiAssistantService
                 - 例如用户只说“新增住院登记”，打开表单后应询问“请提供患者姓名或编号、科室、病区、床位及主治医生。押金当前为3000元，如需修改请说明。”不能从背景历史记录随意选患者，也不能编造诊断
                 - 用户补充信息后，结合原目标、待补充问题、已执行动作和当前表单继续填写，禁止重新打开并清空表单；信息充分时继续 select/input/click 直到业务提交成功，不得要求用户自行操作
                 - 对话历史和此前办事记录用于理解“刚才新增的”“那个”等指代。先从最近相关记录的实际填写值、结果和标识确定对象，再结合当前页面核对；有记录时不得声称没有上下文。历史任务不是本轮指令，不得重做；失败或取消的操作不算已完成。仍有同名或歧义时才询问，不得猜测删除对象
-                - 删除、作废、退费、结算等不可逆操作，前端会向用户弹确认框；若结果回报"用户拒绝"，输出 done 并说明已取消
+                - 若用户消息附带【指代提示】，其中给出的记录标识就是用户所指对象：直接用该名称/编码作 row 执行，禁止再向用户反问“是哪一条”
+                - 用户明确说了删除某条记录（原话点名或指代明确）时，直接 click 该记录的删除按钮即可：前端会自动完成系统的“是否确认删除”二次确认，不需要你再 click 确定；结果回报“提交成功”后立即 done。只有在没有出现“提交成功”而快照里仍有确认弹窗时，才 click 确定
+                - 删除、作废、退费、结算等不可逆操作，若用户没有明确指定对象，前端会向用户弹确认框；若结果回报"用户拒绝"，输出 done 并说明已取消
+                - 弹窗（详情抽屉等）挡住了要操作的列表时，先 click "关闭"（target 只写“关闭”），关闭成功后再操作列表；不要为此 navigate 或刷新页面
                 - 同一动作连续失败两次不要原样重复，换一种方式或 fail
                 - say 用简体中文；普通进展简短，ask 必须问清缺项，done 必须说明结果。只有 ask/done/fail 才结束当前执行；click/input/select 等动作的 done 必须为 false
 
@@ -356,6 +373,12 @@ public class AiAssistantService
         }
         action.put("type", type);
         action.put("target", a.isObject() ? a.path("target").asText("") : "");
+        // 行级按钮所属记录（名称/编码），前端据此在列表/卡片中定位到具体那一条
+        String row = a.isObject() ? a.path("row").asText("").trim() : "";
+        if (!row.isEmpty())
+        {
+            action.put("row", row.length() > 60 ? row.substring(0, 60) : row);
+        }
         if (a.isObject() && a.has("value") && !a.path("value").isNull())
         {
             JsonNode v = a.path("value");
