@@ -39,8 +39,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- 报告输出编码格式 -->
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <!-- JDK 编译版本，若依 SpringBoot3 版本要求 Java 17+ -->
-        <java.version>17</java.version>
+        <!-- JDK 编译版本，使用 Java 25 LTS -->
+        <java.version>25</java.version>
         <!-- Spring Boot 框架版本 -->
         <spring-boot.version>3.5.16</spring-boot.version>
         <!-- MyBatis 与 Spring Boot 整合的启动器版本 -->
@@ -261,7 +261,7 @@
                 <configuration>
                     <!-- parameters=true：编译时保留方法参数名，Spring MVC 按参数名绑定请求参数时需要 -->
                     <parameters>true</parameters>
-                    <!-- 源码编译版本，使用 properties 中定义的 java.version（17） -->
+                    <!-- 源码编译版本，使用 properties 中定义的 java.version（25） -->
                     <source>${java.version}</source>
                     <!-- 目标字节码版本，与 source 保持一致 -->
                     <target>${java.version}</target>
