@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,24 +70,19 @@ public class AiAssistantService
      * @param images      用户上传的图片（data:image/...;base64,...），可为空
      * @return { answer, navigate:{path,menuText,group}|null, steps:[{target,title,content}] }
      */
-    public Map<String, Object> chat(String message, List<Map<String, String>> history, String page, String pageContext, List<String> images, List<String> taskRecords)
+    public CompletableFuture<Map<String, Object>> chat(String message, List<Map<String, String>> history, String page, String pageContext, List<String> images, List<String> taskRecords)
     {
         checkConfig();
-        try
-        {
-            boolean hasImages = images != null && !images.isEmpty();
-            String useModel = (hasImages && visionModel != null && !visionModel.isBlank()) ? visionModel : model;
-            return parseAnswer(callUpstream(buildChatMessages(message, history, page, pageContext, images, taskRecords), useModel, hasImages, "low"));
-        }
-        catch (ServiceException e)
-        {
-            throw e;
-        }
-        catch (Exception e)
-        {
-            log.warn("AI chat request failed: {}", e.toString());
-            throw new ServiceException("AI 服务暂时不可用，请稍后重试");
-        }
+        boolean hasImages = images != null && !images.isEmpty();
+        String useModel = (hasImages && visionModel != null && !visionModel.isBlank()) ? visionModel : model;
+        return callUpstream(buildChatMessages(message, history, page, pageContext, images, taskRecords), useModel, hasImages, "low")
+                .thenApply(this::parseAnswer)
+                .exceptionally(ex -> {
+                    Throwable cause = ex instanceof CompletionException ? ex.getCause() : ex;
+                    if (cause instanceof ServiceException se) throw se;
+                    log.warn("AI chat request failed: {}", ex.toString());
+                    throw new ServiceException("AI 服务暂时不可用，请稍后重试");
+                });
     }
 
     /**
@@ -101,44 +98,39 @@ public class AiAssistantService
      * @param hints       前端解析出的指代提示（如"刚创建的"对应的记录标识），可为空
      * @return { say, action:{type,target,value,row}, done }
      */
-    public Map<String, Object> agentStep(String goal, String page, String pageContext, List<Map<String, Object>> actions, List<String> images, List<String> digest, int stepNo,
+    public CompletableFuture<Map<String, Object>> agentStep(String goal, String page, String pageContext, List<Map<String, Object>> actions, List<String> images, List<String> digest, int stepNo,
             List<Map<String, String>> history, List<String> taskRecords, String hints)
     {
         checkConfig();
-        try
+        boolean hasImages = images != null && !images.isEmpty();
+        String useModel = (hasImages && visionModel != null && !visionModel.isBlank()) ? visionModel : model;
+        ArrayNode messages = objectMapper.createArrayNode();
+        messages.addObject().put("role", "system").put("content", agentPrompt(page, pageContext));
+        appendConversation(messages, history, taskRecords);
+        ObjectNode userNode = messages.addObject().put("role", "user");
+        String userMessage = agentUserMessage(goal, actions, digest, stepNo, hints);
+        if (hasImages)
         {
-            boolean hasImages = images != null && !images.isEmpty();
-            String useModel = (hasImages && visionModel != null && !visionModel.isBlank()) ? visionModel : model;
-            ArrayNode messages = objectMapper.createArrayNode();
-            messages.addObject().put("role", "system").put("content", agentPrompt(page, pageContext));
-            appendConversation(messages, history, taskRecords);
-            ObjectNode userNode = messages.addObject().put("role", "user");
-            String userMessage = agentUserMessage(goal, actions, digest, stepNo, hints);
-            if (hasImages)
+            ArrayNode arr = userNode.putArray("content");
+            arr.addObject().put("type", "text").put("text", userMessage);
+            for (String img : images)
             {
-                ArrayNode arr = userNode.putArray("content");
-                arr.addObject().put("type", "text").put("text", userMessage);
-                for (String img : images)
-                {
-                    arr.addObject().put("type", "image_url").putObject("image_url").put("url", img);
-                }
+                arr.addObject().put("type", "image_url").putObject("image_url").put("url", img);
             }
-            else
-            {
-                userNode.put("content", userMessage);
-            }
-            String effort = agentReasoning == null || agentReasoning.isBlank() ? "medium" : agentReasoning.trim().toLowerCase();
-            return parseAgentAnswer(callUpstream(messages, useModel, hasImages, effort));
         }
-        catch (ServiceException e)
+        else
         {
-            throw e;
+            userNode.put("content", userMessage);
         }
-        catch (Exception e)
-        {
-            log.warn("AI agent step failed: {}", e.toString());
-            throw new ServiceException("AI 服务暂时不可用，请稍后重试");
-        }
+        String effort = agentReasoning == null || agentReasoning.isBlank() ? "medium" : agentReasoning.trim().toLowerCase();
+        return callUpstream(messages, useModel, hasImages, effort)
+                .thenApply(this::parseAgentAnswer)
+                .exceptionally(ex -> {
+                    Throwable cause = ex instanceof CompletionException ? ex.getCause() : ex;
+                    if (cause instanceof ServiceException se) throw se;
+                    log.warn("AI agent step failed: {}", ex.toString());
+                    throw new ServiceException("AI 服务暂时不可用，请稍后重试");
+                });
     }
 
     private void checkConfig()
@@ -149,39 +141,55 @@ public class AiAssistantService
         }
     }
 
-    /** 调用 OpenAI 兼容 chat/completions，返回 message.content 文本 */
-    private String callUpstream(ArrayNode messages, String useModel, boolean hasImages, String reasoningEffort) throws Exception
+    /** 异步调用 OpenAI 兼容 chat/completions，返回 CompletableFuture<message.content> */
+    private CompletableFuture<String> callUpstream(ArrayNode messages, String useModel, boolean hasImages, String reasoningEffort)
     {
         ObjectNode payload = objectMapper.createObjectNode();
         payload.put("model", useModel);
         payload.put("temperature", 0.3);
-        // GLM-5.x 始终开启思考（thinking.type 只能 enabled），按场景调推理档位：Agent 决策用 high，普通问答用 low
         payload.putObject("thinking").put("type", "enabled");
         payload.put("reasoning_effort", reasoningEffort == null ? "low" : reasoningEffort);
-        // 部分视觉模型不支持 response_format，带图时改用提示词约束 JSON 输出
         if (!hasImages)
         {
             payload.putObject("response_format").put("type", "json_object");
         }
         payload.set("messages", messages);
 
+        String body;
+        try
+        {
+            body = objectMapper.writeValueAsString(payload);
+        }
+        catch (Exception e)
+        {
+            return CompletableFuture.failedFuture(e);
+        }
+
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl.replaceAll("/+$", "") + "/chat/completions"))
                 .timeout(Duration.ofSeconds(timeout))
                 .header("Authorization", "Bearer " + apiKey)
                 .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(
-                        objectMapper.writeValueAsString(payload), StandardCharsets.UTF_8))
+                .POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8))
                 .build();
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-        if (response.statusCode() / 100 != 2)
-        {
-            log.warn("LLM upstream HTTP {}: {}", response.statusCode(), response.body());
-            throw new ServiceException("AI 服务暂时不可用，请稍后重试");
-        }
-        JsonNode root = objectMapper.readTree(response.body());
-        return root.path("choices").path(0).path("message").path("content").asText("");
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8))
+                .thenApply(response -> {
+                    if (response.statusCode() / 100 != 2)
+                    {
+                        log.warn("LLM upstream HTTP {}: {}", response.statusCode(), response.body());
+                        throw new CompletionException(new ServiceException("AI 服务暂时不可用，请稍后重试"));
+                    }
+                    try
+                    {
+                        JsonNode root = objectMapper.readTree(response.body());
+                        return root.path("choices").path(0).path("message").path("content").asText("");
+                    }
+                    catch (Exception e)
+                    {
+                        throw new CompletionException(e);
+                    }
+                });
     }
 
     private ArrayNode buildChatMessages(String message, List<Map<String, String>> history, String page, String pageContext, List<String> images, List<String> taskRecords)

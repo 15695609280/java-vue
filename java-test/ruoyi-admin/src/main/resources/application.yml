@@ -47,6 +47,8 @@ user:
 
 # Spring配置
 spring:
+  main:
+    allow-bean-definition-overriding: true
   # 资源信息
   messages:
     # 国际化资源文件路径
@@ -101,7 +103,7 @@ token:
   # 令牌自定义标识
   header: Authorization
   # 令牌密钥
-  secret: abcdefghijklmnopqrstuvwxyz
+  secret: ${JWT_SECRET:change-this-before-deploy-at-least-32-chars}
   # 令牌有效期（单位：分钟，5天 = 7200分钟）
   expireTime: 7200
 
@@ -158,3 +160,5 @@ ai:
   # 带图问答使用的视觉模型；留空则复用 model
   vision-model:
   timeout: 60
+  # Agent 单任务最大允许步数，超过后拒绝请求防止无限循环
+  agent-max-steps: 60

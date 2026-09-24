@@ -27,6 +27,15 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter
     @Autowired
     private TokenService tokenService;
 
+    /**
+     * DeferredResult 完成后会在新线程进行 ASYNC 分派，无状态认证需在该线程重新加载用户。
+     */
+    @Override
+    protected boolean shouldNotFilterAsyncDispatch()
+    {
+        return false;
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException
