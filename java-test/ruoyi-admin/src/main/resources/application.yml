@@ -59,6 +59,8 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+    # 禁止 flyway clean，避免误清空整个数据库
+    clean-disabled: true
     # 已有历史数据的库自动标记基线，V1 脚本不会重复执行
     baseline-on-migrate: true
     baseline-version: 1

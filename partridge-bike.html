@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>鹧鸪骑行 · 山水之间</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #1d2b64; overflow: hidden; }
+  svg { display: block; width: 100vw; height: 100vh; }
+  .title {
+    position: fixed; left: 40px; top: 32px; color: rgba(255,255,255,.92);
+    font-family: "STKaiti", "KaiTi", "Microsoft YaHei", serif; letter-spacing: 6px;
+    text-shadow: 0 2px 12px rgba(0,0,0,.35); pointer-events: none;
+  }
+  .title h1 { margin: 0; font-size: 42px; font-weight: normal; }
+  .title p { margin: 8px 0 0; font-size: 16px; opacity: .8; letter-spacing: 4px; }
+  .ctrl {
+    position: fixed; right: 28px; bottom: 24px; display: flex; gap: 10px; align-items: center;
+    background: rgba(255,255,255,.15); backdrop-filter: blur(8px); padding: 10px 16px;
+    border-radius: 999px; color: #fff; font: 14px "Microsoft YaHei", sans-serif;
+  }
+  .ctrl input { accent-color: #ffb37a; }
+</style>
+</head>
+<body>
+<div class="title">
+  <h1>鹧鸪骑行</h1>
+  <p>行不得也哥哥 · 偏要骑车看山河</p>
+</div>
+<div class="ctrl">
+  <span>速度</span>
+  <input id="speed" type="range" min="40" max="400" value="160">
+</div>
+
+<svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d2b64"/>
+      <stop offset="0.35" stop-color="#5b4b9a"/>
+      <stop offset="0.62" stop-color="#e0729a"/>
+      <stop offset="0.82" stop-color="#ffb37a"/>
+      <stop offset="1" stop-color="#ffe3a3"/>
+    </linearGradient>
+    <radialGradient id="sunGlow">
+      <stop offset="0" stop-color="#fff6d5" stop-opacity=".9"/>
+      <stop offset=".25" stop-color="#ffd48a" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#ff9a76" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sunCore">
+      <stop offset="0" stop-color="#fffbe8"/>
+      <stop offset="1" stop-color="#ffc56b"/>
+    </radialGradient>
+    <linearGradient id="farMt" gradientUnits="userSpaceOnUse" x1="0" y1="330" x2="0" y2="610">
+      <stop offset="0" stop-color="#e9c9e6"/>
+      <stop offset="1" stop-color="#9a86c4"/>
+    </linearGradient>
+    <linearGradient id="midMt" gradientUnits="userSpaceOnUse" x1="0" y1="430" x2="0" y2="610">
+      <stop offset="0" stop-color="#f4eef8"/>
+      <stop offset="0.18" stop-color="#a9b4e0"/>
+      <stop offset="1" stop-color="#4f5f9f"/>
+    </linearGradient>
+    <linearGradient id="lake" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffcf9a"/>
+      <stop offset=".45" stop-color="#e68aa6"/>
+      <stop offset="1" stop-color="#5a5fa8"/>
+    </linearGradient>
+    <linearGradient id="hill" gradientUnits="userSpaceOnUse" x1="0" y1="650" x2="0" y2="760">
+      <stop offset="0" stop-color="#7fb069"/>
+      <stop offset="1" stop-color="#3d7a4a"/>
+    </linearGradient>
+    <linearGradient id="road" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8a7a70"/>
+      <stop offset="1" stop-color="#5e524c"/>
+    </linearGradient>
+    <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5fa65a"/>
+      <stop offset="1" stop-color="#23562f"/>
+    </linearGradient>
+    <radialGradient id="bodyG" cx=".6" cy=".35" r=".8">
+      <stop offset="0" stop-color="#5a4032"/>
+      <stop offset="1" stop-color="#1f1612"/>
+    </radialGradient>
+    <linearGradient id="wingG" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a0643a"/>
+      <stop offset="1" stop-color="#5e3620"/>
+    </linearGradient>
+    <filter id="blur8"><feGaussianBlur stdDeviation="8"/></filter>
+    <filter id="blur2"><feGaussianBlur stdDeviation="2"/></filter>
+    <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <clipPath id="bodyClip">
+      <ellipse cx="-15" cy="-95" rx="44" ry="32" transform="rotate(-12 -15 -95)"/>
+    </clipPath>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <g id="stars"></g>
+
+  <circle cx="1150" cy="400" r="260" fill="url(#sunGlow)"/>
+  <circle cx="1150" cy="400" r="55" fill="url(#sunCore)"/>
+
+  <g id="clouds"></g>
+  <g id="flock"></g>
+
+  <g id="farLayer"><path id="farPath" fill="url(#farMt)"/></g>
+  <rect x="0" y="520" width="1600" height="90" fill="#fff" opacity=".22" filter="url(#blur8)"/>
+  <g id="midLayer"><path id="midPath" fill="url(#midMt)"/></g>
+
+  <rect x="0" y="600" width="1600" height="130" fill="url(#lake)"/>
+  <g id="shimmer"></g>
+  <rect x="0" y="598" width="1600" height="16" fill="#fff" opacity=".35" filter="url(#blur8)"/>
+
+  <g id="hillLayer"><path id="hillPath" fill="url(#hill)"/><g id="trees"></g></g>
+
+  <rect x="0" y="718" width="1600" height="58" fill="url(#road)"/>
+  <rect x="0" y="716" width="1600" height="4" fill="#c9b8a6"/>
+  <line id="dash" x1="0" y1="748" x2="1600" y2="748" stroke="#f3e6c8" stroke-width="3" stroke-dasharray="40 36" opacity=".8"/>
+
+  <!-- 骑车的鹧鸪 -->
+  <g id="rider" transform="translate(760 700)">
+    <ellipse cx="0" cy="42" rx="120" ry="6" fill="#000" opacity=".25" filter="url(#blur2)"/>
+
+    <path id="farLeg" fill="none" stroke="#b8582a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <line id="farCrank" stroke="#555" stroke-width="4" stroke-linecap="round"/>
+    <line id="farPedal" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+
+    <g id="wheelR">
+      <circle cx="-75" cy="0" r="40" fill="none" stroke="#2b2b2b" stroke-width="6"/>
+      <circle cx="-75" cy="0" r="36" fill="none" stroke="#d9d9d9" stroke-width="2"/>
+      <g class="spokes" data-cx="-75"></g>
+      <circle cx="-75" cy="0" r="4" fill="#888"/>
+    </g>
+    <g id="wheelF">
+      <circle cx="78" cy="0" r="40" fill="none" stroke="#2b2b2b" stroke-width="6"/>
+      <circle cx="78" cy="0" r="36" fill="none" stroke="#d9d9d9" stroke-width="2"/>
+      <g class="spokes" data-cx="78"></g>
+      <circle cx="78" cy="0" r="4" fill="#888"/>
+    </g>
+
+    <g fill="none" stroke="#2f8f9d" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M-75 0 L-5 8 L-22 -50 Z"/>
+      <path d="M-22 -50 L52 -52"/>
+      <path d="M-5 8 L56 -38"/>
+      <path d="M52 -52 L78 0" stroke="#267580"/>
+    </g>
+    <g stroke="#555" stroke-width="1.5" fill="none">
+      <path d="M-5 -3 L-75 -4"/><path d="M-5 19 L-75 4"/>
+    </g>
+    <circle cx="-5" cy="8" r="11" fill="none" stroke="#666" stroke-width="3"/>
+    <path d="M-22 -50 L-25 -60" stroke="#444" stroke-width="4" stroke-linecap="round"/>
+    <path d="M-44 -63 Q-28 -70 -8 -62 Q-26 -58 -44 -63 Z" fill="#3a2a22"/>
+    <path d="M52 -52 L50 -68" stroke="#444" stroke-width="4" stroke-linecap="round"/>
+    <path d="M40 -70 Q56 -76 64 -64" fill="none" stroke="#333" stroke-width="4" stroke-linecap="round"/>
+    <path d="M-90 -12 Q-75 -48 -55 -30" fill="none" stroke="#2f8f9d" stroke-width="3" opacity=".6"/>
+    <path d="M60 -30 Q78 -52 98 -24" fill="none" stroke="#2f8f9d" stroke-width="3" opacity=".6"/>
+
+    <!-- 车筐和花 -->
+    <g>
+      <circle cx="70" cy="-74" r="5" fill="#ff6b9a"/>
+      <circle cx="80" cy="-78" r="5" fill="#ffd166"/>
+      <circle cx="89" cy="-72" r="5" fill="#fff"/>
+      <circle cx="76" cy="-70" r="4" fill="#c77dff"/>
+      <path d="M72 -76 L74 -66 M80 -78 L80 -66 M88 -72 L85 -66" stroke="#3d7a4a" stroke-width="2"/>
+      <path d="M62 -66 L96 -66 L91 -46 L67 -46 Z" fill="#c8894d" stroke="#8a5a2b" stroke-width="2"/>
+      <path d="M64 -59 L94 -59 M66 -52 L92 -52 M74 -66 L75 -46 M84 -66 L83 -46" stroke="#8a5a2b" stroke-width="1.5"/>
+    </g>
+
+    <g id="bird">
+      <path d="M-50 -103 L-92 -118 L-84 -100 L-96 -88 L-52 -84 Z" fill="#3a2a22"/>
+      <path d="M-58 -100 L-86 -110 M-60 -92 L-88 -92" stroke="#c9a27a" stroke-width="1.5"/>
+      <ellipse cx="-15" cy="-95" rx="44" ry="32" transform="rotate(-12 -15 -95)" fill="url(#bodyG)"/>
+      <g id="spots" clip-path="url(#bodyClip)"></g>
+      <path id="scarfTail" fill="none" stroke="#e63946" stroke-width="8" stroke-linecap="round"/>
+      <ellipse cx="18" cy="-118" rx="16" ry="14" fill="#2a1d17"/>
+      <g>
+        <circle cx="30" cy="-136" r="20" fill="#8b4a2b"/>
+        <path d="M14 -146 Q30 -160 46 -144 Q30 -150 14 -146 Z" fill="#5b2d18"/>
+        <path d="M16 -132 Q32 -138 48 -131 Q32 -127 16 -132 Z" fill="#fff"/>
+        <path d="M14 -140 Q30 -146 46 -140" fill="none" stroke="#1a1a1a" stroke-width="3"/>
+        <path d="M18 -124 Q30 -118 42 -126 Q30 -114 18 -124 Z" fill="#f5efe4"/>
+        <circle cx="38" cy="-139" r="3.8" fill="#111"/>
+        <circle cx="39.3" cy="-140.3" r="1.2" fill="#fff"/>
+        <path d="M48 -139 L60 -134 L48 -130 Z" fill="#4a4a4a"/>
+        <circle cx="42" cy="-132" r="3" fill="#ff8fa3" opacity=".6"/>
+      </g>
+      <path d="M8 -120 Q20 -110 32 -116" fill="none" stroke="#e63946" stroke-width="9" stroke-linecap="round"/>
+    </g>
+
+    <line id="nearCrank" stroke="#777" stroke-width="4" stroke-linecap="round"/>
+    <line id="nearPedal" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+    <path id="nearLeg" fill="none" stroke="#d8763a" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="-5" cy="8" r="3.5" fill="#999"/>
+
+    <g id="wing">
+      <path d="M-45 -110 Q0 -124 30 -98 Q44 -84 50 -70 Q28 -80 -5 -80 Q-34 -84 -45 -110 Z" fill="url(#wingG)"/>
+      <path d="M-30 -104 Q0 -110 22 -92 M-30 -96 Q0 -100 28 -84 M-26 -88 Q0 -90 34 -78" fill="none" stroke="#e8c69a" stroke-width="1.6" opacity=".8"/>
+      <ellipse cx="48" cy="-70" rx="6" ry="4.5" fill="#5e3620"/>
+    </g>
+  </g>
+
+  <g id="fgLayer"><rect x="0" y="774" width="3200" height="130" fill="url(#grass)"/><g id="fg"></g></g>
+  <g id="petals"></g>
+  <g id="fireflies" filter="url(#glow)"></g>
+</svg>
+
+<script>
+const NS = 'http://www.w3.org/2000/svg';
+const W = 1600;
+const $ = id => document.getElementById(id);
+const el = (tag, attrs, parent) => {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+};
+const rand = (a, b) => a + Math.random() * (b - a);
+
+function wave(x, cfg) {
+  let y = cfg.y;
+  for (const [a, k, p] of cfg.w) y += a * Math.sin(2 * Math.PI * k * x / W + p);
+  return y;
+}
+function ridgePath(cfg, bottom) {
+  let d = `M0 ${bottom}`;
+  for (let x = 0; x <= 2 * W; x += 6) d += ` L${x} ${wave(x, cfg).toFixed(1)}`;
+  return d + ` L${2 * W} ${bottom} Z`;
+}
+
+const farCfg  = { y: 440, w: [[60, 2, 1], [30, 5, 2.3], [12, 11, .4], [5, 23, 1.1]] };
+const midCfg  = { y: 515, w: [[40, 3, .3], [24, 7, 1.7], [10, 13, .9], [4, 29, 2.2]] };
+const hillCfg = { y: 680, w: [[10, 2, .5], [7, 5, 1.2], [3, 11, 2]] };
+$('farPath').setAttribute('d', ridgePath(farCfg, 612));
+$('midPath').setAttribute('d', ridgePath(midCfg, 612));
+$('hillPath').setAttribute('d', ridgePath(hillCfg, 722));
+
+for (let i = 0; i < 70; i++) {
+  el('circle', { cx: rand(0, W), cy: rand(0, 260), r: rand(.6, 1.8), fill: '#fff', class: 'star', 'data-p': rand(0, 6.28), 'data-k': rand(1, 3) }, $('stars'));
+}
+
+const clouds = [];
+for (let i = 0; i < 7; i++) {
+  const g = el('g', { opacity: rand(.55, .9) }, $('clouds'));
+  const s = rand(.6, 1.4);
+  const parts = [[0, 0, 60, 18], [-35, 6, 40, 14], [38, 5, 45, 15], [10, -12, 38, 16]];
+  for (const [x, y, rx, ry] of parts) el('ellipse', { cx: x * s, cy: y * s, rx: rx * s, ry: ry * s, fill: i % 2 ? '#ffd9e0' : '#ffe8d0' }, g);
+  clouds.push({ g, x: rand(0, W), y: rand(90, 330), v: rand(6, 16) * s });
+}
+
+const birds = [];
+for (let i = 0; i < 5; i++) {
+  const p = el('path', { fill: 'none', stroke: '#3b2f4a', 'stroke-width': 2.2, 'stroke-linecap': 'round' }, $('flock'));
+  birds.push({ p, dx: i * 28 - (i % 2) * 10, dy: Math.abs(i - 2) * 14, ph: i * .7 });
+}
+let flockX = 200;
+
+const shimmers = [];
+for (let i = 0; i < 18; i++) {
+  const y = 606 + i * 6.5;
+  const w = 70 - i * 2.5 + rand(-10, 10);
+  shimmers.push(el('rect', { x: 1150 - w / 2 + rand(-12, 12), y, width: w, height: 2.2, rx: 1.1, fill: '#fff4d6', 'data-p': rand(0, 6.28) }, $('shimmer')));
+}
+for (let i = 0; i < 40; i++) {
+  el('rect', { x: rand(0, W), y: rand(610, 720), width: rand(15, 50), height: 1.2, fill: '#fff', opacity: rand(.1, .3) }, $('shimmer'));
+}
+
+function pine(g, x, y, s) {
+  el('rect', { x: x - 3 * s, y: y - 14 * s, width: 6 * s, height: 16 * s, fill: '#4a3222' }, g);
+  const cols = ['#1f5a3a', '#256b44', '#2f7d4f'];
+  for (let i = 0; i < 3; i++) {
+    const w = (34 - i * 8) * s, top = y - (40 + i * 22) * s, base = y - (10 + i * 20) * s;
+    el('path', { d: `M${x - w} ${base} L${x} ${top} L${x + w} ${base} Z`, fill: cols[i] }, g);
+  }
+}
+function blossom(g, x, y, s) {
+  el('path', { d: `M${x} ${y} Q${x - 3 * s} ${y - 30 * s} ${x + 2 * s} ${y - 50 * s} M${x} ${y - 30 * s} Q${x + 14 * s} ${y - 40 * s} ${x + 20 * s} ${y - 55 * s}`, stroke: '#5b3a2b', 'stroke-width': 5 * s, fill: 'none', 'stroke-linecap': 'round' }, g);
+  const pinks = ['#ffc2d4', '#ff9ebb', '#ffd6e3', '#ffb3c8'];
+  for (let i = 0; i < 9; i++) {
+    el('circle', { cx: x + rand(-26, 30) * s, cy: y - rand(45, 80) * s, r: rand(12, 20) * s, fill: pinks[i % 4], opacity: .92 }, g);
+  }
+}
+const treeG = $('trees');
+for (let x = 20; x < W; x += rand(60, 150)) {
+  const y = wave(x, hillCfg) + 6;
+  const s = rand(.7, 1.2);
+  const kind = Math.random() < .45 ? blossom : pine;
+  kind(treeG, x, y, s);
+  kind(treeG, x + W, wave(x + W, hillCfg) + 6, s);
+}
+
+const fg = $('fg');
+const flowerCols = ['#ff6b9a', '#ffd166', '#ffffff', '#c77dff', '#ff9f43', '#7bdff2'];
+for (let i = 0; i < 260; i++) {
+  const x = rand(0, W), y = rand(778, 900), h = rand(8, 22);
+  for (const ox of [0, W]) el('path', { d: `M${x + ox} ${y} q${rand(-4, 4)} ${-h / 2} ${rand(-6, 6)} ${-h}`, stroke: Math.random() < .5 ? '#7cc36a' : '#3f8a45', 'stroke-width': 2, fill: 'none' }, fg);
+}
+for (let i = 0; i < 70; i++) {
+  const x = rand(0, W), y = rand(785, 890), c = flowerCols[i % flowerCols.length], r = rand(3, 6);
+  for (const ox of [0, W]) {
+    el('path', { d: `M${x + ox} ${y + 14} L${x + ox} ${y}`, stroke: '#2f6f3a', 'stroke-width': 2 }, fg);
+    for (let k = 0; k < 5; k++) {
+      const a = k * Math.PI * 2 / 5;
+      el('circle', { cx: x + ox + Math.cos(a) * r, cy: y + Math.sin(a) * r, r: r * .75, fill: c }, fg);
+    }
+    el('circle', { cx: x + ox, cy: y, r: r * .5, fill: '#ffcf33' }, fg);
+  }
+}
+
+document.querySelectorAll('.spokes').forEach(g => {
+  const cx = +g.dataset.cx;
+  for (let i = 0; i < 12; i++) {
+    const a = i * Math.PI / 6;
+    el('line', { x1: cx, y1: 0, x2: cx + Math.cos(a) * 36, y2: Math.sin(a) * 36, stroke: '#cfcfcf', 'stroke-width': 1.2 }, g);
+  }
+});
+
+for (let i = 0; i < 26; i++) {
+  let x, y;
+  do { x = rand(-60, 30); y = rand(-125, -65); }
+  while (((x + 15) / 44) ** 2 + ((y + 95) / 32) ** 2 > 1);
+  el('ellipse', { cx: x, cy: y, rx: rand(1.8, 3), ry: rand(1.3, 2), fill: '#f3ead8', opacity: .85 }, $('spots'));
+}
+
+const petals = [];
+for (let i = 0; i < 45; i++) {
+  const e = el('ellipse', { rx: rand(3, 5), ry: rand(1.8, 2.8), fill: Math.random() < .5 ? '#ffc2d4' : '#ffe0ea', opacity: .9 }, $('petals'));
+  petals.push({ e, x: rand(0, W), y: rand(-50, 900), vy: rand(20, 45), vx: rand(10, 40), ph: rand(0, 6.28), rot: rand(0, 360) });
+}
+
+const flies = [];
+for (let i = 0; i < 30; i++) {
+  const e = el('circle', { r: rand(1.5, 2.8), fill: '#fff3a6' }, $('fireflies'));
+  flies.push({ e, x: rand(0, W), y: rand(640, 890), ph: rand(0, 6.28), k: rand(1, 3) });
+}
+
+function ik(hx, hy, px, py, L1, L2) {
+  const dx = px - hx, dy = py - hy;
+  const d = Math.min(Math.hypot(dx, dy), L1 + L2 - .1);
+  const a = Math.atan2(dy, dx);
+  const c = Math.acos(Math.max(-1, Math.min(1, (L1 * L1 + d * d - L2 * L2) / (2 * L1 * d))));
+  const k1 = { x: hx + L1 * Math.cos(a - c), y: hy + L1 * Math.sin(a - c) };
+  const k2 = { x: hx + L1 * Math.cos(a + c), y: hy + L1 * Math.sin(a + c) };
+  return k1.x > k2.x ? k1 : k2;
+}
+const BB = { x: -5, y: 8 }, CR = 18, HIP = { x: -12, y: -68 };
+function setLeg(legId, crankId, pedalId, ang) {
+  const px = BB.x + Math.cos(ang) * CR, py = BB.y + Math.sin(ang) * CR;
+  const c = $(crankId);
+  c.setAttribute('x1', BB.x); c.setAttribute('y1', BB.y); c.setAttribute('x2', px); c.setAttribute('y2', py);
+  const p = $(pedalId);
+  p.setAttribute('x1', px - 7); p.setAttribute('y1', py); p.setAttribute('x2', px + 7); p.setAttribute('y2', py);
+  const k = ik(HIP.x, HIP.y, px, py - 3, 48, 48);
+  $(legId).setAttribute('d', `M${HIP.x} ${HIP.y} L${k.x.toFixed(1)} ${k.y.toFixed(1)} L${px.toFixed(1)} ${(py - 3).toFixed(1)} l9 1 M${px.toFixed(1)} ${(py - 3).toFixed(1)} l7 4 M${px.toFixed(1)} ${(py - 3).toFixed(1)} l-5 2`);
+}
+
+const speedInput = $('speed');
+let dist = 0, last = performance.now();
+const layers = [['farLayer', .04], ['midLayer', .1], ['hillLayer', .35], ['fgLayer', 1.25]];
+
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000);
+  last = now;
+  const t = now / 1000;
+  const speed = +speedInput.value;
+  dist += speed * dt;
+
+  for (const [id, f] of layers) $(id).setAttribute('transform', `translate(${-((dist * f) % W)} 0)`);
+  $('dash').style.strokeDashoffset = dist;
+
+  const wheelDeg = (dist / 40) * 180 / Math.PI;
+  $('wheelR').querySelector('.spokes').setAttribute('transform', `rotate(${wheelDeg} -75 0)`);
+  $('wheelF').querySelector('.spokes').setAttribute('transform', `rotate(${wheelDeg} 78 0)`);
+
+  const crank = dist / 40 / 2.2;
+  setLeg('nearLeg', 'nearCrank', 'nearPedal', crank);
+  setLeg('farLeg', 'farCrank', 'farPedal', crank + Math.PI);
+
+  const bob = Math.sin(crank * 2) * 1.6;
+  $('bird').setAttribute('transform', `translate(0 ${bob})`);
+  $('wing').setAttribute('transform', `translate(0 ${bob * .6})`);
+  $('rider').setAttribute('transform', `translate(760 ${700 + Math.sin(t * 1.3) * .8})`);
+
+  const s = Math.min(1.8, speed / 160);
+  const w1 = Math.sin(t * 9) * 4 * s, w2 = Math.sin(t * 9 - 1.2) * 7 * s, w3 = Math.sin(t * 9 - 2.4) * 10 * s;
+  $('scarfTail').setAttribute('d', `M14 -120 Q-8 ${-126 + w1} -30 ${-122 + w2} T${-50 - 10 * s} ${-126 + w3}`);
+
+  document.querySelectorAll('.star').forEach(st => {
+    st.setAttribute('opacity', .35 + .65 * Math.abs(Math.sin(t * st.dataset.k + +st.dataset.p)));
+  });
+
+  for (const c of clouds) {
+    c.x -= (c.v + speed * .02) * dt;
+    if (c.x < -150) c.x = W + 150;
+    c.g.setAttribute('transform', `translate(${c.x} ${c.y})`);
+  }
+
+  flockX += 35 * dt;
+  if (flockX > W + 200) flockX = -200;
+  for (const b of birds) {
+    const f = Math.sin(t * 7 + b.ph) * 6;
+    const x = flockX - b.dx, y = 200 + b.dy + Math.sin(t + b.ph) * 3;
+    b.p.setAttribute('d', `M${x - 12} ${y + f} Q${x - 6} ${y - 4} ${x} ${y} Q${x + 6} ${y - 4} ${x + 12} ${y + f}`);
+  }
+
+  shimmers.forEach(r => r.setAttribute('opacity', .25 + .6 * Math.abs(Math.sin(t * 2 + +r.dataset.p))));
+
+  for (const p of petals) {
+    p.x -= (p.vx + speed * .25) * dt + Math.sin(t * 2 + p.ph) * .6;
+    p.y += p.vy * dt;
+    p.rot += 90 * dt;
+    if (p.y > 910 || p.x < -20) { p.x = rand(0, W + 300); p.y = -20; }
+    p.e.setAttribute('transform', `translate(${p.x} ${p.y}) rotate(${p.rot})`);
+  }
+
+  for (const f of flies) {
+    const x = ((f.x - dist * .5 + Math.sin(t * .7 + f.ph) * 20) % W + W) % W;
+    f.e.setAttribute('cx', x);
+    f.e.setAttribute('cy', f.y + Math.sin(t * f.k + f.ph) * 8);
+    f.e.setAttribute('opacity', Math.max(0, Math.sin(t * f.k * 1.5 + f.ph)));
+  }
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
