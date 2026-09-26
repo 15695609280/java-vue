@@ -1,7 +1,8 @@
 package com.ruoyi.his.mapper;
 
-import com.ruoyi.his.domain.Admission;
 import java.util.List;
+
+import com.ruoyi.his.domain.Admission;
 
 /**
  * 住院登记数据访问层接口。
@@ -67,6 +68,7 @@ public interface AdmissionMapper
      * @return 实际删除的记录数；主键不存在时通常为 {@code 0}
      */
     public int deleteAdmissionByAdmId(Long admId);
+
 
     /**
      * 批量删除住院登记记录。
