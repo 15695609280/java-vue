@@ -31,8 +31,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
      <include refid="selectDepartmentVo"></include>
      <where>
         <if test = "deptName!=null and deptName!=''">AND t.dept_name like concat('%',#{deptName},'%')</if>
-        order by t.order_num,t.dept_id
      </where>
+     order by t.order_num,t.dept_id
     </select>
 
     <select id ="selectDepartmentByDeptId" parameterType="Long" resultMap="DepartmentResult">
@@ -40,7 +40,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       where t.dept_id = #{deptId}
     </select>
 
-    <insert id = "insertDepartment" parameterType="com.ruoyi.his.domain.Department" resultMap="DepartmentResult">
+    <insert id = "insertDepartment" parameterType="com.ruoyi.his.domain.Department" useGeneratedKeys="true" keyProperty="deptId">
     insert into his_department
     <trim prefix="(" suffix=")" suffixOverrides=",">
     <if test="parentId != null">parent_id,</if>
@@ -75,9 +75,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     
     </insert>
 
-    <update id="updateDepartment" parameterType="com.ruoyi.his.domain.Department" resultMap="DepartmentResult">
+    <update id="updateDepartment" parameterType="com.ruoyi.his.domain.Department">
     update his_department
-    <trim prefix="set" suffix=",">
+    <trim prefix="SET" suffixOverrides=",">
    <if test="parentId != null">parent_id = #{parentId},</if>
             <if test="deptName != null and deptName != ''">dept_name = #{deptName},</if>
             <if test="deptCode != null and deptCode != ''">dept_code = #{deptCode},</if>
